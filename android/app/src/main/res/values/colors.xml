@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sancheng_paper">#F4EFE4</color>
+    <color name="sancheng_paper_deep">#E9DFCF</color>
+    <color name="sancheng_ink">#28251F</color>
+    <color name="sancheng_red">#B8462C</color>
+    <color name="colorPrimary">#F4EFE4</color>
+    <color name="colorPrimaryDark">#F4EFE4</color>
+    <color name="colorAccent">#B8462C</color>
+</resources>

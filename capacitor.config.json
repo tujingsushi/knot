@@ -1,0 +1,13 @@
+{
+  "appId": "com.sancheng.app",
+  "appName": "结绳",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}

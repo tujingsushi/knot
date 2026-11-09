@@ -1,0 +1,87 @@
+# ------------------------------------------------------------------
+# Dependencies and caches
+# ------------------------------------------------------------------
+node_modules/
+.npm-cache/
+.npmrc
+.pnpm-store/
+.vite/
+
+# ------------------------------------------------------------------
+# Build output
+# ------------------------------------------------------------------
+dist/
+*.tsbuildinfo
+
+# Local toolchains, browser profiles, generated assets
+.tooling/
+.chrome-profile/
+assets/
+
+# ------------------------------------------------------------------
+# Environment and local configuration
+# ------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.local
+
+# ------------------------------------------------------------------
+# OS / editor
+# ------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.iml
+
+# ------------------------------------------------------------------
+# Logs and test artifacts
+# ------------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+playwright-report/
+test-results/
+visual-check/
+
+# ------------------------------------------------------------------
+# Secrets and signing material
+# ------------------------------------------------------------------
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+android/keystore/
+android/keystore.properties
+**/keystore.properties
+
+# ------------------------------------------------------------------
+# Android generated files
+# ------------------------------------------------------------------
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.externalNativeBuild/
+android/.cxx/
+android/captures/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/app/src/main/res/xml/config.xml
+
+# ------------------------------------------------------------------
+# Release binaries
+# 建议用 GitHub Releases 托管 APK / PWA zip；若要直接提交到仓库，
+# 删除 release/ 和下面三行，或改用 Git LFS。
+# ------------------------------------------------------------------
+release/
+*.apk
+*.aab
+*.zip
