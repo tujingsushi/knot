@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { ArrowUpRightIcon, CardIcon, DownloadIcon, ShareIcon, TrashIcon, XIcon } from './Icons'
 import { Modal } from './Modal'
 import { formatNativeSaveTime } from '../lib/nativeStorage'
+import { desktopPlatformLabel } from '../lib/desktop'
 import type { NativeBackupStatus } from '../hooks/usePlans'
 
 interface SettingsSheetProps {
@@ -11,6 +12,7 @@ interface SettingsSheetProps {
   canInstall: boolean
   isStandalone: boolean
   isNativeApp: boolean
+  isDesktopApp: boolean
   backupStatus: NativeBackupStatus
   lastNativeSave: string | null
   importError: string | null
@@ -28,6 +30,7 @@ export function SettingsSheet({
   canInstall,
   isStandalone,
   isNativeApp,
+  isDesktopApp,
   backupStatus,
   lastNativeSave,
   importError,
@@ -81,9 +84,11 @@ export function SettingsSheet({
             </span>
           </div>
           <p className="settings-description">
-            {isNativeApp
-              ? '自动写入 App 私有文件；卸载或清除应用数据会丢失。'
-              : '只保存在这个浏览器里；清理站点数据会丢失。'}
+            {isDesktopApp
+              ? '保存在这台电脑的桌面应用用户目录；清理应用数据会丢失。'
+              : isNativeApp
+                ? '自动写入 App 私有文件；卸载或清除应用数据会丢失。'
+                : '只保存在这个浏览器里；清理站点数据会丢失。'}
           </p>
 
           {isNativeApp && (
@@ -133,12 +138,26 @@ export function SettingsSheet({
 
         <details className="settings-details">
           <summary>
-            <span>{isNativeApp ? '运行信息与关于' : '安装与关于'}</span>
+            <span>{isNativeApp || isDesktopApp ? '运行信息与关于' : '安装与关于'}</span>
             <span aria-hidden="true">＋</span>
           </summary>
 
           <div className="settings-details-body">
-            {isNativeApp ? (
+            {isDesktopApp ? (
+              <>
+                <div className="install-status">
+                  <span className="install-status-dot" aria-hidden="true" />
+                  桌面版 · {desktopPlatformLabel()}
+                </div>
+                <p className="settings-description">
+                  数据保存在这台电脑的桌面应用用户目录；清理应用数据会丢失。
+                </p>
+                <div className="native-path">
+                  <span>数据方式</span>
+                  <code>桌面应用本地存储 / Knot</code>
+                </div>
+              </>
+            ) : isNativeApp ? (
               <>
                 <div className="install-status">
                   <span className="install-status-dot" aria-hidden="true" />
@@ -189,7 +208,9 @@ export function SettingsSheet({
             <div className="about-meta">
               <span>版本 2.2.2</span>
               <span>本地优先</span>
-              <span>{isNativeApp ? 'Android App' : '无账号'}</span>
+              <span>
+                {isDesktopApp ? '桌面 App' : isNativeApp ? 'Android App' : '无账号'}
+              </span>
             </div>
           </div>
         </details>

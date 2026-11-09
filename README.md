@@ -24,14 +24,19 @@
 
 ![设置页开发者信息](screenshots/15-settings-developer.png)
 
+![桌面版](screenshots/16-desktop-app.png)
+
 ## 交付物
 
 | 文件 | 说明 |
 |---|---|
 | [`release/knot-2.2.2.apk`](release/knot-2.2.2.apk) | 已签名 Release APK，约 3.5 MB，Android 7.0+ |
 | [`release/knot-web-2.2.2.zip`](release/knot-web-2.2.2.zip) | 可部署到 HTTPS 的 PWA 构建包 |
+| [`release-desktop/knot-desktop-2.2.2-portable.exe`](release-desktop/knot-desktop-2.2.2-portable.exe) | Windows x64 单文件便携版 |
+| [`release-desktop/knot-desktop-2.2.2-x64.zip`](release-desktop/knot-desktop-2.2.2-x64.zip) | Windows x64 解压版 |
+| [`DESKTOP.md`](DESKTOP.md) | 桌面版安装、数据与构建说明 |
 | [`APK-INSTALL.md`](APK-INSTALL.md) | HarmonyOS 7 / 卓易通安装说明与风险 |
-| [`screenshots/`](screenshots/) | 开屏、规划、想法、新建选择、详情、今日一页等截图 |
+| [`screenshots/`](screenshots/) | 开屏、规划、想法、桌面版、详情、今日一页等截图 |
 
 APK 校验信息：
 
@@ -48,6 +53,20 @@ SHA-256：3EF3A0F38990C6D5E599E1B557341F34C1D358ADD4C4A1F02AA37FA075C5C8EA
 ```
 
 > **重要：** HarmonyOS 7 是纯血鸿蒙，系统本身不能安装 Android APK。这个 APK 只能通过 **卓易通等 Android 兼容层**运行，不是鸿蒙原生 HAP。兼容层是否支持该 APK，必须在你手机上实际验证。
+
+## 桌面版
+
+Windows x64 桌面版基于 Electron 45，与 Web 版共用同一份界面和数据模型。
+
+- 便携版：`release-desktop/knot-desktop-2.2.2-portable.exe`，110,641,064 字节
+- 解压版：`release-desktop/knot-desktop-2.2.2-x64.zip`，153,598,175 字节
+- 便携版 SHA-256：`02B74E764A558B6A3A62A0ACB3AA37849CBAF106091358EC395960214C40C08E`
+- 解压版 SHA-256：`D045EDA48C651BF360504C7690BB1F00E539A964405E9E79195D5AFEA7E176D1`
+- 详细说明见 [DESKTOP.md](DESKTOP.md)
+
+`knot.exe` 是兼容启动器，会启动同目录的 `knot-core.exe --no-sandbox`，用于兼容 Chromium 沙箱受限的 Windows。便携版数据在同目录 `KnotData`，解压版在 `%APPDATA%\Knot`。未做代码签名，SmartScreen 可能提示未知发布者。
+
+![桌面版设置](screenshots/17-desktop-settings.png)
 
 ## 更名说明
 
@@ -78,12 +97,14 @@ SHA-256：3EF3A0F38990C6D5E599E1B557341F34C1D358ADD4C4A1F02AA37FA075C5C8EA
 - 冷启动从第一帧内容开始就是名言页
 - 某些系统在 WebView 加载前仍会有极短的纸色空白帧，但不会再出现图标页或名称页
 
-## 2.2.2 开发者信息
+## 2.2.2 开发者信息与桌面版
 
 - 设置页底部新增「开发者 tujingsushi」
 - 新增可点击的仓库地址 `github.com/tujingsushi/knot`
 - 网页、PWA 和 Android 包内补充开发者元信息
-- 不改变应用数据、包名和签名
+- 新增 Electron Windows 桌面版：便携 exe、解压 zip
+- 桌面版识别自己的运行环境，隐藏浏览器安装引导，显示数据说明
+- 不改变应用数据、包名和 Android 签名
 
 ## 2.2.1 已完成规划留在年轮上
 
@@ -183,6 +204,19 @@ npm run build
 python -m http.server 4173 --directory dist
 ```
 
+## 构建桌面版
+
+环境要求：Windows x64、Node.js >= 20.19。首次安装依赖会下载 Electron。
+
+```bash
+npm install
+npm run desktop:dev       # 构建 dist 并启动 Electron
+npm run desktop:pack      # release-desktop/knot-desktop-2.2.2-x64.zip
+npm run desktop:portable  # release-desktop/knot-desktop-2.2.2-portable.exe
+```
+
+桌面主进程在 `desktop/main.cjs`，窗口 560 × 860；便携版数据在同目录 `KnotData`，解压版在 `%APPDATA%\Knot`。详见 [DESKTOP.md](DESKTOP.md)。
+
 ## 构建 Android APK
 
 环境要求：
@@ -221,18 +255,33 @@ APK 已完成：
 - APK 内 Web 资源、Capacitor 原生桥接代码、JSON 文件备份代码检查通过
 - 320px / 390px 视觉回归通过；所有可见文字 ≥ 12px
 
+桌面版已完成：
+
+- Electron 45.2.3 开发模式启动正常
+- 打包后的 `knot.exe` 启动正常
+- 便携版直接双击启动正常（不附加命令行参数）
+- 解压版 `knot.exe` 直接启动正常
+- 桌面桥识别 Windows / Electron 版本
+- 设置页显示桌面版、数据说明和开发者信息
+- zip 与 portable 构建成功
+- 桌面包内 `app.asar` 只包含 `dist`、`desktop` 和元数据
+- 启动器使用 `--no-sandbox` 兼容受限 Windows；只加载本地内容
+- 未做代码签名，SmartScreen 可能提示未知发布者
+
 **未完成：** 没有在 HarmonyOS 7 + 卓易通真机上安装运行；这需要你在手机上完成首次侧载验证。
 
 ## 主要目录
 
 ```text
 src/                       Web 应用
+desktop/                   Electron 主进程、预加载桥与图标
 android/                   Capacitor Android 工程
 android/keystore/          APK 更新签名密钥
 public/                    PWA manifest、Service Worker、网页图标
 scripts/                   图标生成与自动化测试
 dist/                      Web 生产构建
 release/                   APK 与 PWA 交付包
+release-desktop/           Windows 桌面版 zip / portable
 screenshots/               界面截图
 ```
 
@@ -247,6 +296,6 @@ screenshots/               界面截图
 
 ## 技术栈
 
-React 19 + TypeScript + Vite 7 + Capacitor 8，无 UI 组件库、无图表库、无后端。年轮与时间轴均由 SVG / CSS 手绘实现。
+React 19 + TypeScript + Vite 7 + Capacitor 8 + Electron 45，无 UI 组件库、无图表库、无后端。年轮与时间轴均由 SVG / CSS 手绘实现。
 
 版本：2.2.2

@@ -3,6 +3,8 @@
   "private": true,
   "version": "2.2.2",
   "type": "module",
+  "description": "结绳 KNOT · 把远方拆成今天的本地优先规划应用",
+  "main": "desktop/main.cjs",
   "author": "tujingsushi",
   "homepage": "https://github.com/tujingsushi/knot",
   "repository": {
@@ -19,7 +21,11 @@
     "typecheck": "tsc --noEmit",
     "android:sync": "npm run build && cap sync android",
     "android:apk": "cd android && gradlew.bat assembleRelease",
-    "android:debug": "cd android && gradlew.bat assembleDebug"
+    "android:debug": "cd android && gradlew.bat assembleDebug",
+    "desktop:dev": "npm run build && electron .",
+    "desktop:unpacked": "npm run build && electron-builder --win dir --x64",
+    "desktop:pack": "npm run build && electron-builder --win zip --x64",
+    "desktop:portable": "npm run build && electron-builder --win portable --x64"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.0",
@@ -36,8 +42,51 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0",
     "playwright-core": "^1.65.0",
     "typescript": "~5.9.3",
     "vite": "^7.3.7"
+  },
+  "build": {
+    "appId": "com.sancheng.app.desktop",
+    "productName": "结绳 KNOT",
+    "executableName": "knot",
+    "electronVersion": "45.2.3",
+    "electronDist": "node_modules/electron/dist",
+    "afterPack": "desktop/after-pack.cjs",
+    "afterSign": "desktop/after-sign.cjs",
+    "artifactName": "knot-desktop-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "release-desktop"
+    },
+    "files": [
+      "dist/**/*",
+      "desktop/**/*",
+      "!node_modules/**/*",
+      "!src/**/*",
+      "!android/**/*",
+      "!release/**/*",
+      "!release-desktop/**/*",
+      "!screenshots/**/*",
+      "!scripts/**/*",
+      "!public/**/*"
+    ],
+    "asar": true,
+    "npmRebuild": false,
+    "win": {
+      "icon": "desktop/icon.ico",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "knot-desktop-${version}-portable.${ext}"
+    }
   }
 }

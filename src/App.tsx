@@ -8,6 +8,7 @@ import { downloadBlob } from './lib/exportImage'
 import { shareJsonBackup } from './lib/nativeStorage'
 import type { PlanDraft } from './lib/plans'
 import type { IdeaDraft } from './lib/ideas'
+import { isDesktopApp } from './lib/desktop'
 import { usePlans } from './hooks/usePlans'
 import { useToday } from './hooks/useToday'
 import { useToast } from './hooks/useToast'
@@ -75,6 +76,7 @@ export default function App() {
   } = plansApi
   const today = useToday()
   const currentYear = yearOf(today)
+  const desktop = isDesktopApp()
   const { toast, showToast, dismiss } = useToast()
 
   const [ringYear, setRingYear] = useState(currentYear)
@@ -127,7 +129,7 @@ export default function App() {
   }, [showToast])
 
   useEffect(() => {
-    if (!import.meta.env.PROD || native || !('serviceWorker' in navigator)) return
+    if (!import.meta.env.PROD || native || desktop || !('serviceWorker' in navigator)) return
     const register = () => {
       navigator.serviceWorker
         .register(`${import.meta.env.BASE_URL}sw.js`)
@@ -136,7 +138,7 @@ export default function App() {
     if (document.readyState === 'complete') register()
     else window.addEventListener('load', register, { once: true })
     return () => window.removeEventListener('load', register)
-  }, [native])
+  }, [native, desktop])
 
   const backStateRef = useRef({
     todayOpen,
@@ -565,6 +567,7 @@ export default function App() {
           canInstall={Boolean(installPrompt)}
           isStandalone={isStandalone}
           isNativeApp={native}
+          isDesktopApp={desktop}
           backupStatus={backupStatus}
           lastNativeSave={lastNativeSave}
           importError={importError}

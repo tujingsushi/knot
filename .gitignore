@@ -16,6 +16,8 @@ dist/
 # Local toolchains, browser profiles, generated assets
 .tooling/
 .chrome-profile/
+.electron-data*/
+KnotData/
 assets/
 
 # ------------------------------------------------------------------
@@ -82,6 +84,9 @@ android/app/src/main/res/xml/config.xml
 # 删除 release/ 和下面三行，或改用 Git LFS。
 # ------------------------------------------------------------------
 release/
+release-desktop/
 *.apk
 *.aab
 *.zip
+*.exe
+!desktop/launcher.exe
