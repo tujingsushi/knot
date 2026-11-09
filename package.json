@@ -1,7 +1,7 @@
 {
   "name": "knot",
   "private": true,
-  "version": "2.2.2",
+  "version": "2.3.0",
   "type": "module",
   "description": "结绳 KNOT · 把远方拆成今天的本地优先规划应用",
   "main": "desktop/main.cjs",
