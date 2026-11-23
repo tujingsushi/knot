@@ -79,6 +79,23 @@ android/app/src/main/assets/capacitor.plugins.json
 android/app/src/main/res/xml/config.xml
 
 # ------------------------------------------------------------------
+# iOS generated files
+# ------------------------------------------------------------------
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/capacitor.plugins.json
+ios/App/Pods/
+ios/App/Podfile.lock
+ios/DerivedData/
+ios/**/DerivedData/
+ios/**/xcuserdata/
+ios/**/*.xcuserstate
+ios/**/.build/
+ios/**/.swiftpm/
+*.ipa
+*.dSYM.zip
+
+# ------------------------------------------------------------------
 # Release binaries
 # 建议用 GitHub Releases 托管 APK / PWA zip；若要直接提交到仓库，
 # 删除 release/ 和下面三行，或改用 Git LFS。

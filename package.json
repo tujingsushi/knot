@@ -1,7 +1,7 @@
 {
   "name": "knot",
   "private": true,
-  "version": "2.3.0",
+  "version": "2.5.9",
   "type": "module",
   "description": "结绳 KNOT · 把远方拆成今天的本地优先规划应用",
   "main": "desktop/main.cjs",
@@ -22,6 +22,8 @@
     "android:sync": "npm run build && cap sync android",
     "android:apk": "cd android && gradlew.bat assembleRelease",
     "android:debug": "cd android && gradlew.bat assembleDebug",
+    "ios:sync": "npm run build && cap sync ios",
+    "ios:open": "cap open ios",
     "desktop:dev": "npm run build && electron .",
     "desktop:unpacked": "npm run build && electron-builder --win dir --x64",
     "desktop:pack": "npm run build && electron-builder --win zip --x64",
@@ -32,8 +34,10 @@
     "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.6.0",
     "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/ios": "^8.6.0",
     "@capacitor/share": "^8.0.3",
     "@capacitor/status-bar": "^8.0.4",
+    "@capawesome/capacitor-android-edge-to-edge-support": "^8.0.8",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

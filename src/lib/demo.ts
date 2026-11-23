@@ -13,8 +13,11 @@ export function createDemoIdeas(today: string): Idea[] {
     title,
     note,
     date: addDays(today, dayOffset),
+    status: 'active',
     createdAt: timestamp,
     updatedAt: timestamp,
+    completedAt: null,
+    archivedAt: null,
   })
 
   return [

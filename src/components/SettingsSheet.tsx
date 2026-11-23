@@ -1,12 +1,16 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type CSSProperties } from 'react'
+import { Capacitor } from '@capacitor/core'
 import { ArrowUpRightIcon, CardIcon, DownloadIcon, ShareIcon, TrashIcon, XIcon } from './Icons'
 import { Modal } from './Modal'
 import { formatNativeSaveTime } from '../lib/nativeStorage'
 import { desktopPlatformLabel } from '../lib/desktop'
+import { THEMES, type ThemeKey } from '../lib/theme'
 import type { NativeBackupStatus } from '../hooks/usePlans'
 
 interface SettingsSheetProps {
   open: boolean
+  theme: ThemeKey
+  onThemeChange: (theme: ThemeKey) => void
   planCount: number
   ideaCount: number
   canInstall: boolean
@@ -25,6 +29,8 @@ interface SettingsSheetProps {
 
 export function SettingsSheet({
   open,
+  theme,
+  onThemeChange,
   planCount,
   ideaCount,
   canInstall,
@@ -76,6 +82,44 @@ export function SettingsSheet({
       </div>
 
       <div className="settings-body">
+        <section className="settings-section" aria-labelledby="settings-theme">
+          <div className="settings-section-head">
+            <h3 id="settings-theme">主题</h3>
+            <span className="settings-count">
+              {THEMES.find((item) => item.key === theme)?.label}
+            </span>
+          </div>
+          <p className="settings-description">
+            选一种纸色。主题只改变颜色，不改变数据。
+          </p>
+          <div className="theme-grid" role="radiogroup" aria-label="主题颜色">
+            {THEMES.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className="theme-choice"
+                role="radio"
+                aria-checked={theme === item.key}
+                aria-label={`${item.label}：${item.description}`}
+                onClick={() => onThemeChange(item.key)}
+                style={
+                  {
+                    '--swatch-paper': item.paper,
+                    '--swatch-ink': item.ink,
+                    '--swatch-accent': item.accent,
+                    '--swatch-red': item.red,
+                  } as CSSProperties
+                }
+              >
+                <span className="theme-swatch" aria-hidden="true">
+                  <i />
+                </span>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </section>
+
         <section className="settings-section" aria-labelledby="settings-data">
           <div className="settings-section-head">
             <h3 id="settings-data">本机数据</h3>
@@ -206,10 +250,16 @@ export function SettingsSheet({
 
             <p className="about-line">把远方拆成今天，把完成打成一个结。</p>
             <div className="about-meta">
-              <span>版本 2.2.2</span>
+              <span>版本 2.5.9</span>
               <span>本地优先</span>
               <span>
-                {isDesktopApp ? '桌面 App' : isNativeApp ? 'Android App' : '无账号'}
+                {isDesktopApp
+                  ? '桌面 App'
+                  : isNativeApp
+                    ? Capacitor.getPlatform() === 'ios'
+                      ? 'iOS App'
+                      : 'Android App'
+                    : '无账号'}
               </span>
             </div>
           </div>

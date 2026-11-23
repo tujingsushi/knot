@@ -3,7 +3,11 @@ import { App as CapacitorApp } from '@capacitor/app'
 import type { Idea, Plan } from '../types'
 import { IDEAS_STORAGE_KEY, STORAGE_KEY } from '../lib/constants'
 import {
+  archiveIdea as archiveIdeaData,
+  completeIdea as completeIdeaData,
   createIdea,
+  reopenIdea as reopenIdeaData,
+  restoreIdea as restoreIdeaData,
   updateIdea as updateIdeaData,
   type IdeaDraft,
 } from '../lib/ideas'
@@ -48,6 +52,10 @@ export interface PlansApi {
   deletePlan: (id: string) => void
   addIdea: (draft: IdeaDraft) => Idea
   updateIdea: (id: string, draft: IdeaDraft) => void
+  completeIdea: (id: string) => void
+  reopenIdea: (id: string) => void
+  archiveIdea: (id: string) => void
+  restoreIdea: (id: string) => void
   deleteIdea: (id: string) => void
   replacePlans: (plans: Plan[]) => void
   replaceIdeas: (ideas: Idea[]) => void
@@ -94,15 +102,10 @@ export function usePlans(): PlansApi {
         setLastNativeSave(snapshot.savedAt)
         const currentPlans = latestPlans.current
         const currentIdeas = latestIdeas.current
-        const localLatest = [
-          ...currentPlans.map((plan) => Date.parse(plan.updatedAt) || 0),
-          ...currentIdeas.map((idea) => Date.parse(idea.updatedAt) || 0),
-        ].reduce((latest, value) => Math.max(latest, value), 0)
-        const nativeSaved = Date.parse(snapshot.savedAt) || 0
-        if (
-          (currentPlans.length === 0 && currentIdeas.length === 0) ||
-          nativeSaved > localLatest + 2000
-        ) {
+        // Local storage is the live source of truth once the app has data.
+        // Only use the native snapshot to seed a fresh install; never let an
+        // older background snapshot overwrite a just-saved idea edit.
+        if (currentPlans.length === 0 && currentIdeas.length === 0) {
           setPlans(snapshot.plans)
           setIdeas(snapshot.ideas)
         }
@@ -229,6 +232,30 @@ export function usePlans(): PlansApi {
     )
   }, [])
 
+  const completeIdea = useCallback((id: string) => {
+    setIdeas((current) =>
+      current.map((idea) => (idea.id === id ? completeIdeaData(idea) : idea)),
+    )
+  }, [])
+
+  const reopenIdea = useCallback((id: string) => {
+    setIdeas((current) =>
+      current.map((idea) => (idea.id === id ? reopenIdeaData(idea) : idea)),
+    )
+  }, [])
+
+  const archiveIdea = useCallback((id: string) => {
+    setIdeas((current) =>
+      current.map((idea) => (idea.id === id ? archiveIdeaData(idea) : idea)),
+    )
+  }, [])
+
+  const restoreIdea = useCallback((id: string) => {
+    setIdeas((current) =>
+      current.map((idea) => (idea.id === id ? restoreIdeaData(idea) : idea)),
+    )
+  }, [])
+
   const deleteIdea = useCallback((id: string) => {
     setIdeas((current) => current.filter((idea) => idea.id !== id))
   }, [])
@@ -280,6 +307,10 @@ export function usePlans(): PlansApi {
     deletePlan,
     addIdea,
     updateIdea,
+    completeIdea,
+    reopenIdea,
+    archiveIdea,
+    restoreIdea,
     deleteIdea,
     replacePlans,
     replaceIdeas,

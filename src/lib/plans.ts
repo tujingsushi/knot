@@ -2,8 +2,6 @@ import type { Plan, PlanPhase, PlanTiming, Subgoal } from '../types'
 import {
   addDays,
   clamp,
-  dayOfYear,
-  daysInYear,
   diffDays,
   isISODate,
   nowISOString,
@@ -331,25 +329,28 @@ export interface YearSegment {
   clippedEnd: boolean
 }
 
-export function getYearSegments(plans: Plan[], year: number): YearSegment[] {
-  const yearStart = startOfYear(year)
-  const yearEnd = endOfYear(year)
+export function getRangeSegments(
+  plans: Plan[],
+  rangeStart: string,
+  rangeEnd: string,
+): YearSegment[] {
+  const totalDays = Math.max(1, diffDays(rangeStart, rangeEnd) + 1)
   const segments: YearSegment[] = []
 
   for (const plan of plans) {
     if (plan.status === 'archived') continue
-    if (plan.endDate < yearStart || plan.startDate > yearEnd) continue
+    if (plan.endDate < rangeStart || plan.startDate > rangeEnd) continue
 
-    const visibleStart = plan.startDate < yearStart ? yearStart : plan.startDate
-    const visibleEnd = plan.endDate > yearEnd ? yearEnd : plan.endDate
-    const startFraction = (dayOfYear(visibleStart) - 1) / daysInYear(year)
-    const endFraction = dayOfYear(visibleEnd) / daysInYear(year)
+    const visibleStart = plan.startDate < rangeStart ? rangeStart : plan.startDate
+    const visibleEnd = plan.endDate > rangeEnd ? rangeEnd : plan.endDate
+    const startFraction = diffDays(rangeStart, visibleStart) / totalDays
+    const endFraction = (diffDays(rangeStart, visibleEnd) + 1) / totalDays
     let completedFraction: number | null = null
 
     if (plan.status === 'done' && plan.completedAt) {
-      if (plan.completedAt >= yearStart && plan.completedAt <= yearEnd) {
+      if (plan.completedAt >= rangeStart && plan.completedAt <= rangeEnd) {
         completedFraction =
-          (dayOfYear(plan.completedAt) - 0.5) / daysInYear(year)
+          (diffDays(rangeStart, plan.completedAt) + 0.5) / totalDays
       }
     }
 
@@ -358,13 +359,17 @@ export function getYearSegments(plans: Plan[], year: number): YearSegment[] {
       startFraction: clamp(startFraction, 0, 1),
       endFraction: clamp(endFraction, 0, 1),
       completedFraction,
-      spansFullYear: plan.startDate <= yearStart && plan.endDate >= yearEnd,
-      clippedStart: plan.startDate < yearStart,
-      clippedEnd: plan.endDate > yearEnd,
+      spansFullYear: plan.startDate <= rangeStart && plan.endDate >= rangeEnd,
+      clippedStart: plan.startDate < rangeStart,
+      clippedEnd: plan.endDate > rangeEnd,
     })
   }
 
   return segments
+}
+
+export function getYearSegments(plans: Plan[], year: number): YearSegment[] {
+  return getRangeSegments(plans, startOfYear(year), endOfYear(year))
 }
 
 export function getYearsWithPlans(plans: Plan[]): number[] {

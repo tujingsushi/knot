@@ -7,7 +7,23 @@
   },
   "android": {
     "allowMixedContent": false,
-    "captureInput": true,
+    "captureInput": false,
     "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "disable"
+    },
+    "EdgeToEdge": {
+      "backgroundColor": "#f4efe4",
+      "statusBarColor": "#f4efe4",
+      "navigationBarColor": "#f4efe4"
+    }
+  },
+  "ios": {
+    "contentInset": "never",
+    "scrollEnabled": true,
+    "limitsNavigationsToAppBoundDomains": false,
+    "backgroundColor": "#f4efe4"
   }
 }

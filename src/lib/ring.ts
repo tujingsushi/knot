@@ -1,4 +1,9 @@
-import { clamp, dayOfYear, daysInMonth, daysInYear } from './dates'
+import {
+  clamp,
+  dayOfYear,
+  daysInMonth,
+  daysInYear,
+} from './dates'
 import type { YearSegment } from './plans'
 import { getUrgencyStyle } from './urgency'
 

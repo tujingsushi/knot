@@ -39,9 +39,14 @@ export interface Idea {
   title: string
   note: string
   date: string
+  status: IdeaStatus
   createdAt: string
   updatedAt: string
+  completedAt: string | null
+  archivedAt: string | null
 }
+
+export type IdeaStatus = 'active' | 'done' | 'archived'
 
 export interface PlanTiming {
   phase: PlanPhase

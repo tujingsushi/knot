@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core'
 import assert from 'node:assert/strict'
-import { mkdir, stat } from 'node:fs/promises'
+import { mkdir, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 
 const outDir = path.resolve('visual-check')
@@ -95,6 +95,13 @@ try {
   await shot('360-empty.png')
   check('空状态正常，360px 无横向溢出')
 
+  const capacitorConfig = JSON.parse(await readFile('capacitor.config.json', 'utf8'))
+  assert.equal(capacitorConfig.android?.captureInput, false)
+  assert.equal(capacitorConfig.plugins?.SystemBars?.insetsHandling, 'disable')
+  assert.equal(capacitorConfig.plugins?.EdgeToEdge?.statusBarColor, '#f4efe4')
+  assert.equal(capacitorConfig.plugins?.EdgeToEdge?.navigationBarColor, '#f4efe4')
+  check('Android captureInput 关闭，EdgeToEdge 系统栏配置生效')
+
   // Create an idea from the bottom "新建" action.
   await page.getByRole('button', { name: '新建', exact: true }).click()
   await page.getByRole('button', { name: /新建想法/ }).click()
@@ -114,19 +121,76 @@ try {
   await page.locator('.ring-idea').waitFor()
   assert.match(
     (await page.locator('.year-ring').getAttribute('aria-label')) ?? '',
-    /1 个想法/,
+    /1 个进行中的想法/,
   )
   check('想法点缀在年轮上')
 
   await page.getByRole('button', { name: '想法', exact: true }).click()
   await page.locator('.idea-main').filter({ hasText: '想学做一只陶杯' }).click()
-  await page.locator('#idea-title').fill('想学做一只陶杯（手捏）')
-  await page.getByRole('button', { name: '保存修改' }).click()
+  assert.equal(
+    await page.locator('.idea-sheet').evaluate((element) => getComputedStyle(element).transform),
+    'none',
+  )
+  await page.locator('#idea-title').press('End')
+  await page.locator('#idea-title').type('（手捏）')
+  await page.locator('#idea-note').fill('前半后半')
+  await page.locator('#idea-note').evaluate((element) => {
+    const field = element
+    field.focus()
+    field.setSelectionRange(2, 2)
+  })
+  await page.keyboard.type('中间')
+  assert.equal(await page.locator('#idea-note').inputValue(), '前半中间后半')
+  await page.locator('#idea-date').fill('2026-10-01')
+  await page.getByRole('button', { name: '保存', exact: true }).click()
   await page.waitForTimeout(300)
   ideas = await getIdeas()
   assert.equal(ideas[0].title, '想学做一只陶杯（手捏）')
-  check('编辑想法并持久化')
+  assert.equal(ideas[0].note, '前半中间后半')
+  assert.equal(ideas[0].date, '2026-10-01')
+  check('编辑想法标题、日期并持久化')
   await shot('360-ideas.png')
+
+  await page.getByRole('button', { name: '规划', exact: true }).click()
+  await page.locator('.ring-idea').first().click()
+  await page.locator('.idea-sheet').waitFor({ state: 'visible' })
+  await page.waitForTimeout(150)
+  assert.equal(await page.locator('#idea-title').inputValue(), '想学做一只陶杯（手捏）')
+  await page.getByRole('button', { name: '关闭' }).click()
+  check('从年轮打开想法编辑')
+
+  await page.getByRole('button', { name: '想法', exact: true }).click()
+  let ideaCard = page.locator('.idea-item').filter({ hasText: '想学做一只陶杯' })
+  await ideaCard.getByRole('button', { name: '实现' }).click()
+  await page.waitForTimeout(250)
+  await page.locator('.filter-chip').filter({ hasText: '已实现' }).click()
+  await page.waitForTimeout(250)
+  assert.equal(await page.locator('.idea-status-done').count(), 1)
+  check('想法可以标记实现并筛选')
+  await page.getByRole('button', { name: '规划', exact: true }).click()
+  await page.waitForTimeout(300)
+  assert.equal(await page.locator('.ring-idea.is-done').count(), 1)
+  assert.match(
+    (await page.locator('.year-ring').getAttribute('aria-label')) ?? '',
+    /1 个已实现的想法/,
+  )
+  check('已实现想法在年轮上可见')
+  await page.getByRole('button', { name: '想法', exact: true }).click()
+  await page.locator('.filter-chip').filter({ hasText: '已实现' }).click()
+  await page.waitForTimeout(250)
+  ideaCard = page.locator('.idea-item').filter({ hasText: '想学做一只陶杯' })
+  await ideaCard.getByRole('button', { name: '归档' }).click()
+  await page.waitForTimeout(250)
+  await page.locator('.filter-chip').filter({ hasText: '已归档' }).click()
+  await page.waitForTimeout(250)
+  assert.equal(await page.locator('.idea-status-archived').count(), 1)
+  check('想法可以归档并筛选')
+  ideaCard = page.locator('.idea-item').filter({ hasText: '想学做一只陶杯' })
+  await ideaCard.getByRole('button', { name: '恢复' }).click()
+  await page.waitForTimeout(250)
+  check('想法可以从归档恢复')
+  await page.locator('.filter-chip').filter({ hasText: '全部' }).click()
+  await page.waitForTimeout(200)
 
   await page.getByRole('button', { name: '规划', exact: true }).click()
   await page.waitForTimeout(300)
@@ -297,6 +361,10 @@ try {
   // Demo + export.
   await page.getByRole('button', { name: '先看看示例' }).click()
   await page.waitForTimeout(3200)
+  const ringAria = (await page.locator('.year-ring').getAttribute('aria-label')) ?? ''
+  assert.match(ringAria, /^2026 年年轮/)
+  assert.equal(await page.locator('.year-ring').getAttribute('data-domain-label'), null)
+  check('年轮恢复单年显示')
   await page.locator('.filter-chip').filter({ hasText: '在路上' }).click()
   await page.waitForTimeout(300)
   await assertNoHorizontalOverflow('示例规划页')
@@ -348,6 +416,35 @@ try {
 
   await page.getByRole('button', { name: '打开设置' }).click()
   await page.waitForTimeout(300)
+  assert.equal(await page.locator('.theme-choice').count(), 5)
+  await page.getByRole('radio', { name: /青瓷/ }).click()
+  await page.waitForTimeout(250)
+  assert.equal(
+    await page.locator('html').getAttribute('data-theme'),
+    'celadon',
+  )
+  assert.equal(await page.evaluate(() => localStorage.getItem('knot.theme')), 'celadon')
+  assert.equal(
+    await page.evaluate(() => getComputedStyle(document.body).backgroundColor),
+    'rgb(234, 241, 235)',
+  )
+  assert.equal(
+    await page.locator('meta[name="theme-color"]').getAttribute('content'),
+    '#eaf1eb',
+  )
+  assert.equal(
+    await page.locator('.ring-center-disc').evaluate((element) => getComputedStyle(element).fill),
+    'rgb(234, 241, 235)',
+  )
+  assert.notEqual(
+    await page.locator('.bottom-nav-inner').evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    ),
+    'rgba(251, 247, 237, 0.9)',
+  )
+  check('主题颜色可切换并保存')
+  await page.getByRole('radio', { name: /纸黄/ }).click()
+  await page.waitForTimeout(250)
   await shot('360-settings.png')
   await page.locator('.settings-developer').scrollIntoViewIfNeeded()
   await page.getByText('tujingsushi', { exact: true }).waitFor()

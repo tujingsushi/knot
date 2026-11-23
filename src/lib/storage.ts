@@ -1,9 +1,10 @@
-import type { Idea, Plan, PlanBackup, PlanStatus, Subgoal } from '../types'
+import type { Idea, IdeaStatus, Plan, PlanBackup, PlanStatus, Subgoal } from '../types'
 import { IDEAS_STORAGE_KEY, STORAGE_KEY } from './constants'
 import { isISODate, nowISOString, todayISO } from './dates'
 import { createId } from './plans'
 
 const STATUSES: PlanStatus[] = ['active', 'done', 'archived']
+const IDEA_STATUSES: IdeaStatus[] = ['active', 'done', 'archived']
 const MAX_SUBGOALS = 20
 
 function normalizeDate(value: unknown): string | null {
@@ -117,13 +118,21 @@ function normalizeIdea(value: unknown): Idea | null {
     normalizeDate(record.date) ??
     normalizeDate(createdAt) ??
     todayISO()
+  const status = IDEA_STATUSES.includes(record.status as IdeaStatus)
+    ? (record.status as IdeaStatus)
+    : 'active'
+  const completedAt = normalizeDate(record.completedAt)
+  const archivedAt = normalizeDate(record.archivedAt)
   return {
     id: typeof record.id === 'string' && record.id ? record.id : createId(),
     title,
     note: typeof record.note === 'string' ? record.note.trim().slice(0, 1000) : '',
     date,
+    status,
     createdAt,
     updatedAt,
+    completedAt: status === 'done' ? completedAt ?? updatedAt.slice(0, 10) : null,
+    archivedAt: status === 'archived' ? archivedAt ?? updatedAt.slice(0, 10) : null,
   }
 }
 

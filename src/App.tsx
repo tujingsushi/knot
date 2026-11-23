@@ -9,6 +9,8 @@ import { shareJsonBackup } from './lib/nativeStorage'
 import type { PlanDraft } from './lib/plans'
 import type { IdeaDraft } from './lib/ideas'
 import { isDesktopApp } from './lib/desktop'
+import { applyTheme, loadTheme, themeOption, type ThemeKey } from './lib/theme'
+import { applyNativeBars } from './lib/themeBars'
 import { usePlans } from './hooks/usePlans'
 import { useToday } from './hooks/useToday'
 import { useToast } from './hooks/useToast'
@@ -46,7 +48,7 @@ interface SheetState {
 
 interface IdeaSheetState {
   mode: 'create' | 'edit'
-  ideaId?: string
+  idea?: Idea
 }
 
 export default function App() {
@@ -68,6 +70,10 @@ export default function App() {
     deletePlan,
     addIdea,
     updateIdea,
+    completeIdea,
+    reopenIdea,
+    archiveIdea,
+    restoreIdea,
     deleteIdea,
     replacePlans,
     replaceIdeas,
@@ -80,6 +86,7 @@ export default function App() {
   const { toast, showToast, dismiss } = useToast()
 
   const [ringYear, setRingYear] = useState(currentYear)
+  const [theme, setTheme] = useState<ThemeKey>(loadTheme)
   const [tab, setTab] = useState<TabKey>('plans')
   const [detailId, setDetailId] = useState<string | null>(null)
   const [sheet, setSheet] = useState<SheetState | null>(null)
@@ -139,6 +146,11 @@ export default function App() {
     else window.addEventListener('load', register, { once: true })
     return () => window.removeEventListener('load', register)
   }, [native, desktop])
+
+  useEffect(() => {
+    applyTheme(theme)
+    void applyNativeBars(themeOption(theme).paper)
+  }, [theme])
 
   const backStateRef = useRef({
     todayOpen,
@@ -232,13 +244,7 @@ export default function App() {
         : null,
     [plans, sheet],
   )
-  const sheetIdea = useMemo(
-    () =>
-      ideaSheet?.mode === 'edit' && ideaSheet.ideaId
-        ? ideas.find((idea) => idea.id === ideaSheet.ideaId) ?? null
-        : null,
-    [ideas, ideaSheet],
-  )
+  const sheetIdea = ideaSheet?.mode === 'edit' ? ideaSheet.idea ?? null : null
 
   const openDetail = useCallback((id: string) => {
     setSheet(null)
@@ -287,7 +293,7 @@ export default function App() {
     setSheet(null)
     setCreateChoiceOpen(false)
     setTab('ideas')
-    setIdeaSheet({ mode: 'edit', ideaId: idea.id })
+    setIdeaSheet({ mode: 'edit', idea })
   }, [])
 
   const openSettings = useCallback(() => {
@@ -326,8 +332,8 @@ export default function App() {
   }
 
   const handleIdeaSave = (draft: IdeaDraft) => {
-    if (ideaSheet?.mode === 'edit' && ideaSheet.ideaId) {
-      updateIdea(ideaSheet.ideaId, draft)
+    if (ideaSheet?.mode === 'edit' && ideaSheet.idea) {
+      updateIdea(ideaSheet.idea.id, draft)
       showToast('想法已经改好')
     } else {
       addIdea(draft)
@@ -336,6 +342,27 @@ export default function App() {
     setIdeaSheet(null)
     setTab('ideas')
     scrollToTop()
+  }
+
+  const handleIdeaStatus = (
+    idea: Idea,
+    nextStatus: 'active' | 'done' | 'archived',
+  ) => {
+    if (nextStatus === 'done') {
+      completeIdea(idea.id)
+      showToast('想法已经实现')
+    } else if (nextStatus === 'active') {
+      if (idea.status === 'archived') {
+        restoreIdea(idea.id)
+        showToast('想法已经恢复')
+      } else {
+        reopenIdea(idea.id)
+        showToast('想法回到进行中')
+      }
+    } else {
+      archiveIdea(idea.id)
+      showToast('想法已经归档')
+    }
   }
 
   const handleDeleteIdeaRequest = (idea: Idea) => {
@@ -496,6 +523,7 @@ export default function App() {
               ringYear={ringYear}
               onRingYearChange={setRingYear}
               onSelectPlan={openDetail}
+              onSelectIdea={openIdeaEdit}
               onToggleCheckIn={(planId, date) => toggleCheckIn(planId, date)}
               onNewPlan={openCreate}
               onLoadDemo={loadDemo}
@@ -505,6 +533,7 @@ export default function App() {
               ideas={ideas}
               onNewIdea={openIdeaCreate}
               onEditIdea={openIdeaEdit}
+              onIdeaStatusChange={handleIdeaStatus}
               onDeleteIdea={handleDeleteIdeaRequest}
             />
           )}
@@ -529,6 +558,7 @@ export default function App() {
         />
 
         <IdeaSheet
+          key={ideaSheet ? `${ideaSheet.mode}-${ideaSheet.idea?.id ?? 'new'}` : 'closed'}
           open={Boolean(ideaSheet)}
           mode={ideaSheet?.mode ?? 'create'}
           idea={sheetIdea}
@@ -562,6 +592,8 @@ export default function App() {
 
         <SettingsSheet
           open={settingsOpen}
+          theme={theme}
+          onThemeChange={setTheme}
           planCount={plans.length}
           ideaCount={ideas.length}
           canInstall={Boolean(installPrompt)}

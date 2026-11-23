@@ -1,15 +1,14 @@
 import type { Idea } from '../types'
 import type { YearSegment } from '../lib/plans'
 import { PALETTE } from '../lib/constants'
-import { URGENCY_LEGEND, URGENCY_META } from '../lib/urgency'
 import {
   buildPlanRingArcs,
   fractionToAngle,
-  getDayFractionInYear,
   getMonthTicks,
   pointOnCircle,
   todayFraction,
 } from '../lib/ring'
+import { RingLegend } from './RingLegend'
 
 interface YearRingProps {
   segments: YearSegment[]
@@ -18,15 +17,25 @@ interface YearRingProps {
   currentYear: number
   today: string
   onSelectPlan: (id: string) => void
+  onSelectIdea: (idea: Idea) => void
 }
 
 const CENTER = 180
+const IDEA_RADIUS = 61
 const BODY_FONT =
   "'HarmonyOS Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif"
 const DISPLAY_FONT =
   "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Songti SC', 'Noto Serif CJK SC', STSong, SimSun, serif"
 
-export function YearRing({ segments, ideas, year, currentYear, today, onSelectPlan }: YearRingProps) {
+export function YearRing({
+  segments,
+  ideas,
+  year,
+  currentYear,
+  today,
+  onSelectPlan,
+  onSelectIdea,
+}: YearRingProps) {
   const arcs = buildPlanRingArcs(segments, today, 70, 158)
   const monthTicks = getMonthTicks(year)
   const isCurrentYear = year === currentYear
@@ -36,30 +45,62 @@ export function YearRing({ segments, ideas, year, currentYear, today, onSelectPl
   const activeCount = segments.filter((segment) => segment.plan.status === 'active').length
   const doneCount = segments.filter((segment) => segment.plan.status === 'done').length
   const yearIdeas = ideas
-    .filter((idea) => Number(idea.date.slice(0, 4)) === year)
+    .filter(
+      (idea) =>
+        Number(idea.date.slice(0, 4)) === year && idea.status !== 'archived',
+    )
     .sort((a, b) => a.date.localeCompare(b.date))
-  const ideaMarks = yearIdeas.map((idea, index) => {
-    const sameDate = yearIdeas.filter((item) => item.date === idea.date)
-    const position = sameDate.findIndex((item) => item.id === idea.id)
-    const offset = (position - (sameDate.length - 1) / 2) * 1.35
-    const radius = 60 + (index % 2) * 4
+  const activeIdeaCount = yearIdeas.filter((idea) => idea.status === 'active').length
+  const doneIdeaCount = yearIdeas.filter((idea) => idea.status === 'done').length
+  const ideaGroups: Array<{
+    key: string
+    label: string
+    ideas: Idea[]
+    x: number
+    y: number
+    hasActive: boolean
+    hasDone: boolean
+    first: Idea
+  }> = []
+
+  const ideasByMonth = new Map<number, Idea[]>()
+  for (const idea of yearIdeas) {
+    const month = Number(idea.date.slice(5, 7))
+    const current = ideasByMonth.get(month) ?? []
+    current.push(idea)
+    ideasByMonth.set(month, current)
+  }
+  for (const [month, groupIdeas] of [...ideasByMonth.entries()].sort(
+    ([a], [b]) => a - b,
+  )) {
+    const start = monthTicks[month - 1]?.fraction ?? 0
+    const end = monthTicks[month]?.fraction ?? 1
     const point = pointOnCircle(
       CENTER,
       CENTER,
-      radius,
-      fractionToAngle(getDayFractionInYear(idea.date, year)) + offset,
+      IDEA_RADIUS,
+      fractionToAngle((start + end) / 2),
     )
-    return { idea, x: point.x, y: point.y }
-  })
+    ideaGroups.push({
+      key: `idea-month-${month}`,
+      label: `${month} 月`,
+      ideas: groupIdeas,
+      x: point.x,
+      y: point.y,
+      hasActive: groupIdeas.some((idea) => idea.status === 'active'),
+      hasDone: groupIdeas.some((idea) => idea.status === 'done'),
+      first: groupIdeas[0],
+    })
+  }
 
   return (
-    <div className={`ring-block${segments.length === 0 && ideas.length === 0 ? ' is-empty' : ''}`}>
+    <div className={`ring-block${segments.length === 0 && yearIdeas.length === 0 ? ' is-empty' : ''}`}>
       <div className="ring-stage">
         <svg
           className="year-ring"
           viewBox="0 0 360 360"
           role="img"
-          aria-label={`${year} 年年轮，${activeCount} 条在路上的规划，${doneCount} 条已完成，${yearIdeas.length} 个想法`}
+          aria-label={`${year} 年年轮，${activeCount} 条在路上的规划，${doneCount} 条已完成，${activeIdeaCount} 个进行中的想法，${doneIdeaCount} 个已实现的想法`}
         >
           <circle cx={CENTER} cy={CENTER} r={180} fill="transparent" />
 
@@ -82,6 +123,16 @@ export function YearRing({ segments, ideas, year, currentYear, today, onSelectPl
             opacity="0.05"
             strokeDasharray="1 5"
           />
+          <circle
+            cx={CENTER}
+            cy={CENTER}
+            r="61"
+            fill="none"
+            stroke={PALETTE.idea}
+            strokeWidth="0.7"
+            opacity="0.16"
+            strokeDasharray="1 5"
+          />
 
           {monthTicks.map((tick) => {
             const angle = fractionToAngle(tick.fraction)
@@ -101,8 +152,9 @@ export function YearRing({ segments, ideas, year, currentYear, today, onSelectPl
             )
           })}
 
-          {monthTicks.map((tick) => {
-            const angle = fractionToAngle(tick.fraction + 0.5 / 12)
+          {monthTicks.map((tick, index) => {
+            const next = monthTicks[index + 1]?.fraction ?? 1
+            const angle = fractionToAngle((tick.fraction + next) / 2)
             const point = pointOnCircle(CENTER, CENTER, 173, angle)
             const isCurrent = currentMonth === tick.month
             return (
@@ -221,27 +273,77 @@ export function YearRing({ segments, ideas, year, currentYear, today, onSelectPl
             </g>
           )}
 
-          {ideaMarks.map((mark, index) => (
-            <g
-              className="ring-idea"
-              key={mark.idea.id}
-              style={{ animationDelay: `${380 + index * 45}ms` }}
-              pointerEvents="none"
-            >
-              <circle cx={mark.x} cy={mark.y} r="5.4" fill={PALETTE.paper} opacity="0.92" />
-              <path
-                d={`M ${mark.x} ${mark.y - 4.1} L ${mark.x + 1.15} ${mark.y - 1.15} L ${mark.x + 4.1} ${mark.y} L ${mark.x + 1.15} ${mark.y + 1.15} L ${mark.x} ${mark.y + 4.1} L ${mark.x - 1.15} ${mark.y + 1.15} L ${mark.x - 4.1} ${mark.y} L ${mark.x - 1.15} ${mark.y - 1.15} Z`}
-                fill={PALETTE.idea}
-              />
-              <title>{`想法：${mark.idea.title}`}</title>
-            </g>
-          ))}
+          {ideaGroups.map((mark, index) => {
+            const count = mark.ideas.length
+            const titles = mark.ideas.map((idea) => idea.title).join('、')
+            const isDoneOnly = !mark.hasActive && mark.hasDone
+            return (
+              <g
+                className={`ring-idea${isDoneOnly ? ' is-done' : ''}`}
+                key={mark.key}
+                style={{ animationDelay: `${380 + index * 45}ms` }}
+                role="button"
+                tabIndex={0}
+                aria-label={`${mark.label}，${count} 个${isDoneOnly ? '已实现' : ''}想法：${titles}`}
+                onClick={() => onSelectIdea(mark.first)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    onSelectIdea(mark.first)
+                  }
+                }}
+              >
+                <circle cx={mark.x} cy={mark.y} r="5.4" fill={PALETTE.paper} opacity="0.94" />
+                {isDoneOnly ? (
+                  <>
+                    <circle
+                      cx={mark.x}
+                      cy={mark.y}
+                      r="3"
+                      fill={PALETTE.paper}
+                      stroke={PALETTE.idea}
+                      strokeWidth="1.4"
+                    />
+                    <path
+                      d={`M ${mark.x - 1.3} ${mark.y} L ${mark.x - 0.2} ${mark.y + 1.1} L ${mark.x + 1.45} ${mark.y - 1.35}`}
+                      fill="none"
+                      stroke={PALETTE.idea}
+                      strokeWidth="0.9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </>
+                ) : (
+                  <circle cx={mark.x} cy={mark.y} r="2.7" fill={PALETTE.idea} />
+                )}
+                {count > 1 && (
+                  <text
+                    x={mark.x + 8}
+                    y={mark.y - 7}
+                    fill={PALETTE.inkFaint}
+                    fontSize="12"
+                    fontFamily={BODY_FONT}
+                    paintOrder="stroke"
+                    stroke={PALETTE.paper}
+                    strokeWidth="3"
+                    strokeLinejoin="round"
+                  >
+                    {count}
+                  </text>
+                )}
+                <title>
+                  {`${mark.label} · ${count} 个${isDoneOnly ? '已实现' : ''}想法：${titles}`}
+                </title>
+              </g>
+            )
+          })}
 
           <circle
+            className="ring-center-disc"
             cx={CENTER}
             cy={CENTER}
             r="53"
-            fill={PALETTE.paper}
+            fill="var(--paper)"
             stroke="rgba(40,37,31,0.10)"
             strokeWidth="0.8"
           />
@@ -335,34 +437,11 @@ export function YearRing({ segments, ideas, year, currentYear, today, onSelectPl
         </svg>
       </div>
 
-      <div className="urgency-legend" aria-label="年轮图例">
-        {URGENCY_LEGEND.map((tone) => (
-          <span className="urgency-legend-item" key={tone}>
-            <i
-              className="urgency-legend-dot"
-              style={{ backgroundColor: URGENCY_META[tone].color }}
-              aria-hidden="true"
-            />
-            {URGENCY_META[tone].label}
-          </span>
-        ))}
-        {doneCount > 0 && (
-          <span className="urgency-legend-item">
-            <i
-              className="urgency-legend-dot"
-              style={{ backgroundColor: URGENCY_META.done.color }}
-              aria-hidden="true"
-            />
-            已完成
-          </span>
-        )}
-        {yearIdeas.length > 0 && (
-          <span className="urgency-legend-item">
-            <i className="ring-idea-legend" aria-hidden="true" />
-            想法
-          </span>
-        )}
-      </div>
+      <RingLegend
+        doneCount={doneCount}
+        ideaCount={activeIdeaCount}
+        doneIdeaCount={doneIdeaCount}
+      />
     </div>
   )
 }

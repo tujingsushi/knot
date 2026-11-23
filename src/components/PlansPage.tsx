@@ -21,6 +21,7 @@ interface PlansPageProps {
   ringYear: number
   onRingYearChange: (year: number) => void
   onSelectPlan: (id: string) => void
+  onSelectIdea: (idea: Idea) => void
   onToggleCheckIn: (planId: string, date: string) => void
   onNewPlan: () => void
   onLoadDemo: () => void
@@ -36,6 +37,7 @@ export function PlansPage({
   ringYear,
   onRingYearChange,
   onSelectPlan,
+  onSelectIdea,
   onToggleCheckIn,
   onNewPlan,
   onLoadDemo,
@@ -117,6 +119,7 @@ export function PlansPage({
           currentYear={currentYear}
           today={today}
           onSelectPlan={onSelectPlan}
+          onSelectIdea={onSelectIdea}
         />
         {ringYear !== currentYear && (
           <button
