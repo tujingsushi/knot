@@ -36,7 +36,6 @@ export function CreateChoiceSheet({
           </span>
           <span className="create-choice-copy">
             <strong>新建规划</strong>
-            <span>有一段时间，想把它放进去</span>
           </span>
         </button>
 
@@ -46,7 +45,6 @@ export function CreateChoiceSheet({
           </span>
           <span className="create-choice-copy">
             <strong>新建想法</strong>
-            <span>先记下来，不急着安排时间</span>
           </span>
         </button>
       </div>

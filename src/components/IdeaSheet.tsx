@@ -3,7 +3,7 @@ import type { Idea } from '../types'
 import { formatWeekday } from '../lib/dates'
 import { validateIdeaDraft, type IdeaDraft, type IdeaDraftErrors } from '../lib/ideas'
 import { Modal } from './Modal'
-import { SparkIcon, XIcon } from './Icons'
+import { XIcon } from './Icons'
 
 interface IdeaSheetProps {
   open: boolean
@@ -67,7 +67,7 @@ export function IdeaSheet({
 
       <div className="plan-form">
         <div className="form-field">
-          <label htmlFor="idea-title">这个想法是什么</label>
+          <label htmlFor="idea-title">想法</label>
           <input
             id="idea-title"
             ref={titleRef}
@@ -99,7 +99,7 @@ export function IdeaSheet({
         </div>
 
         <div className="form-field">
-          <label htmlFor="idea-date">记在哪一天</label>
+          <label htmlFor="idea-date">日期</label>
           <div className="idea-date-input-row">
             <input
               id="idea-date"
@@ -123,13 +123,8 @@ export function IdeaSheet({
           )}
         </div>
 
-        <div className="idea-date-line">
-          <SparkIcon size={15} />
-          <span>想法会在年轮上留下一个金色记号</span>
-        </div>
-
         <div className="form-field">
-          <label htmlFor="idea-note">补充（可以不写）</label>
+          <label htmlFor="idea-note">补充</label>
           <textarea
             id="idea-note"
             ref={noteRef}
@@ -140,10 +135,6 @@ export function IdeaSheet({
             maxLength={500}
           />
         </div>
-
-        <p className="idea-sheet-hint">
-          想法会留在「想法」页，也会在年轮上变成一个金色小点。
-        </p>
 
         <div className="sheet-footer">
           <div className="sheet-footer-actions">

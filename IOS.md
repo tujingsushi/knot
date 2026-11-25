@@ -4,7 +4,7 @@ iOS 工程已通过 Capacitor 8 生成，使用 **Swift Package Manager**，不�
 
 - Bundle ID：`com.sancheng.app`
 - 显示名称：`结绳`
-- Marketing Version：`2.5.9`
+- Marketing Version：`2.7.0`
 - Build：`1`
 - 最低系统：iOS 15
 - 设备：iPhone，竖屏

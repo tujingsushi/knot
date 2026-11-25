@@ -279,7 +279,7 @@ export function PlanDetail({
                     : '今天打卡'}
           </button>
 
-          <p className="checkin-hint">最近 14 天 · 点亮日期可补打卡或取消</p>
+          <p className="checkin-hint">最近 14 天</p>
 
           <div className="checkin-grid" role="group" aria-label="最近十四天打卡记录">
             {recentCheckInDays.map((date) => {

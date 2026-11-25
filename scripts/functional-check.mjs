@@ -82,6 +82,14 @@ try {
     .replace(/[「」]/g, '')
     .trim()
   assert.ok(SPLASH_QUOTES.includes(splashQuote))
+  assert.equal(
+    await page.locator('.splash-screen').evaluate((element) => getComputedStyle(element).animationName),
+    'none',
+  )
+  assert.equal(
+    await page.locator('.splash-inner').evaluate((element) => getComputedStyle(element).animationName),
+    'none',
+  )
   check('开屏随机显示四句名言之一')
 
   await page.evaluate(() => localStorage.clear())
@@ -100,6 +108,7 @@ try {
   assert.equal(capacitorConfig.plugins?.SystemBars?.insetsHandling, 'disable')
   assert.equal(capacitorConfig.plugins?.EdgeToEdge?.statusBarColor, '#f4efe4')
   assert.equal(capacitorConfig.plugins?.EdgeToEdge?.navigationBarColor, '#f4efe4')
+  assert.equal(capacitorConfig.plugins?.Keyboard?.resizeOnFullScreen, true)
   check('Android captureInput 关闭，EdgeToEdge 系统栏配置生效')
 
   // Create an idea from the bottom "新建" action.
@@ -131,6 +140,21 @@ try {
     await page.locator('.idea-sheet').evaluate((element) => getComputedStyle(element).transform),
     'none',
   )
+  await page.evaluate(() => {
+    window.dispatchEvent(
+      new CustomEvent('knot:keyboard', { detail: { height: 260 } }),
+    )
+  })
+  await page.waitForTimeout(260)
+  const sheetBottom = await page.locator('.idea-sheet').evaluate(
+    (element) => element.getBoundingClientRect().bottom,
+  )
+  assert.ok(sheetBottom <= 800 - 260 + 2)
+  await page.evaluate(() => {
+    window.dispatchEvent(
+      new CustomEvent('knot:keyboard', { detail: { height: 0 } }),
+    )
+  })
   await page.locator('#idea-title').press('End')
   await page.locator('#idea-title').type('（手捏）')
   await page.locator('#idea-note').fill('前半后半')
@@ -189,7 +213,7 @@ try {
   await ideaCard.getByRole('button', { name: '恢复' }).click()
   await page.waitForTimeout(250)
   check('想法可以从归档恢复')
-  await page.locator('.filter-chip').filter({ hasText: '全部' }).click()
+  await page.locator('.filter-chip').filter({ hasText: '进行中' }).click()
   await page.waitForTimeout(200)
 
   await page.getByRole('button', { name: '规划', exact: true }).click()
@@ -317,10 +341,6 @@ try {
     (await page.locator('.year-ring').getAttribute('aria-label')) ?? '',
     /1 条已完成/,
   )
-  await page
-    .locator('.urgency-legend-item')
-    .filter({ hasText: '已完成' })
-    .waitFor()
   check('已完成规划显示在年轮上')
 
   // Done filter and reopen.
@@ -410,7 +430,7 @@ try {
     const response = await fetch('./manifest.webmanifest')
     return response.json()
   })
-  assert.equal(manifest.name, '结绳 · 把远方拆成今天')
+  assert.equal(manifest.name, '结绳 KNOT')
   assert.ok(manifest.icons.some((icon) => icon.sizes === '512x512'))
   check('PWA manifest 可访问')
 

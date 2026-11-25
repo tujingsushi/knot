@@ -212,7 +212,7 @@ export function PlanSheet({ open, mode, plan, today, onClose, onSave }: PlanShee
         onCompositionEnd={handleCompositionEnd}
       >
         <div className="form-field">
-          <label htmlFor="plan-title">这条规划叫什么</label>
+          <label htmlFor="plan-title">规划名称</label>
           <input
             id="plan-title"
             ref={titleRef}
@@ -365,7 +365,6 @@ export function PlanSheet({ open, mode, plan, today, onClose, onSave }: PlanShee
             />
             <span className="checkin-option-copy">
               <strong>每日打卡</strong>
-              <span>开启后可在详情记录每一天的完成情况</span>
             </span>
             <span className="checkin-switch" aria-hidden="true">
               <span />

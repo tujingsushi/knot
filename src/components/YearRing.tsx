@@ -8,7 +8,6 @@ import {
   pointOnCircle,
   todayFraction,
 } from '../lib/ring'
-import { RingLegend } from './RingLegend'
 
 interface YearRingProps {
   segments: YearSegment[]
@@ -357,91 +356,19 @@ export function YearRing({
             strokeDasharray="1 3"
           />
 
-          {segments.length === 0 && yearIdeas.length === 0 ? (
-            <>
-              <text
-                x={CENTER}
-                y={CENTER - 2}
-                textAnchor="middle"
-                fill={PALETTE.inkSoft}
-                fontSize="12"
-                fontFamily={DISPLAY_FONT}
-                letterSpacing="0.24em"
-              >
-                空白
-              </text>
-              <text
-                x={CENTER}
-                y={CENTER + 17}
-                textAnchor="middle"
-                fill={PALETTE.inkFaint}
-                fontSize="12"
-                fontFamily={BODY_FONT}
-                letterSpacing="0.12em"
-              >
-                暂无在路上的规划
-              </text>
-            </>
-          ) : (
-            <>
-              <text
-                x={CENTER}
-                y={CENTER - 5}
-                textAnchor="middle"
-                fill={PALETTE.ink}
-                fontSize="25"
-                fontFamily={DISPLAY_FONT}
-                letterSpacing="0.04em"
-              >
-                {year}
-              </text>
-              <text
-                x={CENTER}
-                y={CENTER + 13}
-                textAnchor="middle"
-                fill={PALETTE.inkFaint}
-                fontSize="12"
-                fontFamily={BODY_FONT}
-                letterSpacing="0.28em"
-              >
-                年 轮
-              </text>
-              <text
-                x={CENTER}
-                y={CENTER + 30}
-                textAnchor="middle"
-                fill={PALETTE.inkSoft}
-                fontSize="12"
-                fontFamily={BODY_FONT}
-              >
-                {activeCount > 0
-                  ? `${activeCount} 条在路上`
-                  : doneCount > 0
-                    ? `${doneCount} 条已完成`
-                    : `${yearIdeas.length} 个想法`}
-              </text>
-              {activeCount > 0 && doneCount > 0 && (
-                <text
-                  x={CENTER}
-                  y={CENTER + 44}
-                  textAnchor="middle"
-                  fill={PALETTE.inkFaint}
-                  fontSize="12"
-                  fontFamily={BODY_FONT}
-                >
-                  {doneCount} 条已完成
-                </text>
-              )}
-            </>
-          )}
+          <text
+            x={CENTER}
+            y={CENTER + 9}
+            textAnchor="middle"
+            fill={PALETTE.ink}
+            fontSize="28"
+            fontFamily={DISPLAY_FONT}
+            letterSpacing="0.04em"
+          >
+            {year}
+          </text>
         </svg>
       </div>
-
-      <RingLegend
-        doneCount={doneCount}
-        ideaCount={activeIdeaCount}
-        doneIdeaCount={doneIdeaCount}
-      />
     </div>
   )
 }

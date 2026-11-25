@@ -560,18 +560,6 @@ fieldset {
   padding: 16px 0 12px;
 }
 
-.plans-hero-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 2px;
-}
-
-.plans-hero-meta .eyebrow {
-  margin: 0;
-}
-
 .plans-list-section {
   margin-top: 16px;
   padding-top: 14px;
@@ -1981,11 +1969,11 @@ fieldset {
   position: fixed;
   top: auto;
   right: auto;
-  bottom: 0;
+  bottom: var(--keyboard-inset, 0px);
   left: 0;
   right: 0;
   width: min(100%, var(--frame-max));
-  max-height: 93dvh;
+  max-height: min(93dvh, calc(100dvh - var(--keyboard-inset, 0px) - 8px));
   margin: 0 auto;
   padding: 0 22px calc(20px + var(--safe-bottom));
   overflow-y: auto;
@@ -1996,6 +1984,9 @@ fieldset {
     var(--paper);
   box-shadow: 0 -24px 70px rgba(31, 25, 17, 0.26);
   animation: sheet-up 0.32s cubic-bezier(0.2, 0.78, 0.2, 1) both;
+  transition:
+    bottom 0.18s ease,
+    max-height 0.18s ease;
 }
 
 .sheet-handle {
@@ -3772,33 +3763,8 @@ fieldset {
 }
 
 /* ------------------------------------------------------------------
-   Urgency + subgoals
+   Subgoals
 ------------------------------------------------------------------ */
-.urgency-legend {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 11px;
-  padding: 3px 4px 0;
-  color: var(--ink-faint);
-  font-size: 8px;
-  letter-spacing: 0.04em;
-}
-
-.urgency-legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.urgency-legend-dot {
-  width: 5px;
-  height: 5px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-}
-
 .subgoal-fields {
   display: flex;
   flex-direction: column;
@@ -4036,10 +4002,6 @@ fieldset {
   font-size: 9.5px;
 }
 
-.urgency-legend {
-  font-size: 10px;
-}
-
 .recent-plan-title {
   font-size: 15.5px;
 }
@@ -4205,12 +4167,6 @@ fieldset {
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.02em;
-}
-
-.checkin-option-copy span {
-  color: var(--ink-faint);
-  font-size: 12px;
-  line-height: 1.5;
 }
 
 .checkin-switch {
@@ -4389,23 +4345,6 @@ fieldset {
   letter-spacing: 0.02em;
 }
 
-.ideas-head-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-bottom: 4px;
-}
-
-.ideas-intro {
-  margin: 0;
-  padding: 0 0 14px;
-  border-bottom: 1px solid var(--line);
-  color: var(--ink-faint);
-  font-size: 12px;
-  line-height: 1.8;
-  letter-spacing: 0.02em;
-}
-
 .idea-list {
   display: flex;
   flex-direction: column;
@@ -4576,28 +4515,6 @@ fieldset {
   color: var(--red);
 }
 
-.idea-date-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 7px;
-  margin: -2px 0 15px;
-  color: var(--ink-faint);
-  font-size: 12px;
-  letter-spacing: 0.02em;
-}
-
-.idea-date-line svg {
-  color: var(--idea);
-}
-
-.idea-sheet-hint {
-  margin: 2px 0 18px;
-  color: var(--ink-faint);
-  font-size: 12px;
-  line-height: 1.75;
-}
-
 .create-choice-list {
   display: flex;
   flex-direction: column;
@@ -4648,12 +4565,6 @@ fieldset {
   font-size: 17px;
   font-weight: 500;
   letter-spacing: 0.02em;
-}
-
-.create-choice-copy span {
-  color: var(--ink-faint);
-  font-size: 12px;
-  line-height: 1.5;
 }
 
 .ring-idea {
@@ -4770,7 +4681,6 @@ fieldset {
 .band-subgoals-head,
 .band-subgoal,
 .band-subgoal-more,
-.urgency-legend,
 .recent-plan-remaining,
 .quiet-empty,
 .text-action,
@@ -4845,7 +4755,6 @@ fieldset {
     linear-gradient(160deg, var(--paper) 0%, var(--paper-deep) 62%, var(--paper-dark) 100%);
   color: var(--ink);
   cursor: pointer;
-  animation: splash-in 0.45s ease both;
 }
 
 .splash-screen::before {
@@ -4874,7 +4783,6 @@ fieldset {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  animation: splash-rise 0.7s cubic-bezier(0.2, 0.75, 0.2, 1) both;
 }
 
 .splash-mark {
@@ -4926,41 +4834,12 @@ fieldset {
   text-wrap: balance;
 }
 
-.splash-foot {
-  position: absolute;
-  bottom: calc(30px + var(--safe-bottom));
-  color: var(--ink-faint);
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-indent: 0.16em;
-}
-
-@keyframes splash-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes splash-out {
   from {
     opacity: 1;
   }
   to {
     opacity: 0;
-  }
-}
-
-@keyframes splash-rise {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -5087,6 +4966,113 @@ fieldset {
     background:
       radial-gradient(circle at 50% 0%, rgba(251, 247, 237, 0.8), transparent 42%),
       linear-gradient(160deg, #e7dccb, #d9cbb6 65%, #cebea7);
+  }
+}
+
+@media (min-width: 900px) {
+  .app-frame {
+    max-width: 1120px;
+    box-shadow: 0 0 120px rgba(49, 38, 23, 0.16);
+  }
+
+  .app-header {
+    padding: calc(22px + var(--safe-top)) 34px 10px;
+  }
+
+  .app-main {
+    padding: 0 34px calc(112px + var(--safe-bottom));
+  }
+
+  .bottom-nav {
+    max-width: 420px;
+    padding: 0 0 calc(18px + var(--safe-bottom));
+  }
+
+  .bottom-nav-inner {
+    height: 58px;
+  }
+
+  .page-plans,
+  .page-ideas {
+    max-width: 1050px;
+    margin: 0 auto;
+  }
+
+  .plans-hero {
+    padding-top: 24px;
+  }
+
+  .plans-layout {
+    display: grid;
+    grid-template-columns: minmax(340px, 0.86fr) minmax(0, 1.14fr);
+    gap: 36px;
+    align-items: start;
+  }
+
+  .plans-layout.is-empty {
+    display: block;
+  }
+
+  .plans-feed {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .ring-section {
+    margin: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .ring-section-head {
+    padding: 0;
+  }
+
+  .ring-stage {
+    width: min(100%, 390px);
+  }
+
+  .overview-checkin {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .plans-list-section {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .plans-list-section .filter-chips {
+    margin: 0;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .idea-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 30px;
+    align-content: start;
+  }
+
+  .modal.sheet {
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    width: min(calc(100% - 64px), 720px);
+    max-height: 86dvh;
+    transform: translate(-50%, -50%);
+    border-radius: 22px;
+    padding-bottom: 24px;
+  }
+
+  .splash-inner {
+    width: min(calc(100% - 64px), 420px);
   }
 }
 

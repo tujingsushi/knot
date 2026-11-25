@@ -14,6 +14,10 @@
     "SystemBars": {
       "insetsHandling": "disable"
     },
+    "Keyboard": {
+      "resize": "native",
+      "resizeOnFullScreen": true
+    },
     "EdgeToEdge": {
       "backgroundColor": "#f4efe4",
       "statusBarColor": "#f4efe4",

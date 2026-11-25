@@ -86,26 +86,6 @@ await shot('06-detail.png')
 await page.locator('dialog[open]').getByRole('button', { name: '关闭' }).click()
 await page.waitForTimeout(300)
 
-await page.getByRole('button', { name: '打开今日一页' }).click()
-await page.waitForTimeout(700)
-await shot('07-today.png')
-
-let downloadName = null
-try {
-  const downloadPromise = page.waitForEvent('download', { timeout: 8000 })
-  await page.getByRole('button', { name: '保存今日一页为图片' }).click()
-  const download = await downloadPromise
-  downloadName = download.suggestedFilename()
-  const savePath = path.join(outDir, 'today-export.png')
-  await download.saveAs(savePath)
-  await page.waitForTimeout(500)
-} catch (error) {
-  errors.push(`download: ${error.message}`)
-}
-
-await page.getByRole('button', { name: '关闭今日一页' }).click()
-await page.waitForTimeout(500)
-
 await page.locator('.band-row').first().click()
 await page.waitForTimeout(400)
 await page.getByRole('button', { name: '完成，并打一个结' }).click()
@@ -134,5 +114,5 @@ await page.getByRole('button', { name: /添加子目标/ }).click()
 await page.locator('.subgoal-input').fill('先搭好章节框架')
 await shot('11-new-plan.png')
 
-console.log(JSON.stringify({ metrics, errors, downloadName }, null, 2))
+console.log(JSON.stringify({ metrics, errors }, null, 2))
 process.exit(0)

@@ -70,12 +70,6 @@ export function PlansPage({
   return (
     <div className="page page-overview page-plans">
       <section className="overview-intro plans-hero" aria-labelledby="plans-date">
-        <div className="plans-hero-meta">
-          <p className="eyebrow">规划</p>
-          {plans.length > 0 && (
-            <span className="simple-page-count">{filtered.length} 条</span>
-          )}
-        </div>
         <div className="date-row">
           <h1 id="plans-date">{formatMonthDay(today)}</h1>
           <span className="date-weekday">{formatWeekday(today)}</span>
@@ -103,9 +97,10 @@ export function PlansPage({
         </section>
       )}
 
-      <section className="ring-section" aria-labelledby="ring-heading">
+      <div className={`plans-layout${plans.length === 0 ? ' is-empty' : ''}`}>
+        <section className="ring-section" aria-labelledby="ring-heading">
         <div className="ring-section-head">
-          <h2 id="ring-heading">年度年轮</h2>
+          <h2 id="ring-heading">年轮</h2>
           <YearSwitcher
             year={ringYear}
             currentYear={currentYear}
@@ -132,7 +127,8 @@ export function PlansPage({
         )}
       </section>
 
-      {checkInPlans.length > 0 && (
+      <div className="plans-feed">
+        {checkInPlans.length > 0 && (
         <section className="overview-checkin" aria-labelledby="overview-checkin-heading">
           <div className="recent-head">
             <h2 id="overview-checkin-heading">今日打卡</h2>
@@ -234,6 +230,8 @@ export function PlansPage({
           )}
         </section>
       )}
+      </div>
+    </div>
     </div>
   )
 }

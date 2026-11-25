@@ -45,7 +45,6 @@ export function SplashScreen({ onDone }: SplashScreenProps) {
         <span className="splash-rule" aria-hidden="true" />
         <blockquote className="splash-quote">「{quote}」</blockquote>
       </div>
-      <p className="splash-foot">把远方拆成今天</p>
     </div>
   )
 }

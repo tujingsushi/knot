@@ -89,9 +89,6 @@ export function SettingsSheet({
               {THEMES.find((item) => item.key === theme)?.label}
             </span>
           </div>
-          <p className="settings-description">
-            选一种纸色。主题只改变颜色，不改变数据。
-          </p>
           <div className="theme-grid" role="radiogroup" aria-label="主题颜色">
             {THEMES.map((item) => (
               <button
@@ -127,13 +124,13 @@ export function SettingsSheet({
               {planCount} 规划 · {ideaCount} 想法
             </span>
           </div>
-          <p className="settings-description">
-            {isDesktopApp
-              ? '保存在这台电脑的桌面应用用户目录；清理应用数据会丢失。'
-              : isNativeApp
-                ? '自动写入 App 私有文件；卸载或清除应用数据会丢失。'
+          {!isNativeApp && (
+            <p className="settings-description">
+              {isDesktopApp
+                ? '保存在这台电脑的桌面应用用户目录；清理应用数据会丢失。'
                 : '只保存在这个浏览器里；清理站点数据会丢失。'}
-          </p>
+            </p>
+          )}
 
           {isNativeApp && (
             <div className={`native-backup-status is-${backupStatus}`}>
@@ -250,7 +247,7 @@ export function SettingsSheet({
 
             <p className="about-line">把远方拆成今天，把完成打成一个结。</p>
             <div className="about-meta">
-              <span>版本 2.5.9</span>
+              <span>版本 2.7.0</span>
               <span>本地优先</span>
               <span>
                 {isDesktopApp

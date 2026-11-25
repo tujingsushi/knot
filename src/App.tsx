@@ -4,13 +4,14 @@ import type { Idea, Plan, TabKey } from './types'
 import { createDemoIdeas, createDemoPlans } from './lib/demo'
 import { formatDateNumeric, yearOf } from './lib/dates'
 import { createBackup, parseImport } from './lib/storage'
-import { downloadBlob } from './lib/exportImage'
+import { downloadBlob } from './lib/download'
 import { shareJsonBackup } from './lib/nativeStorage'
 import type { PlanDraft } from './lib/plans'
 import type { IdeaDraft } from './lib/ideas'
 import { isDesktopApp } from './lib/desktop'
 import { applyTheme, loadTheme, themeOption, type ThemeKey } from './lib/theme'
 import { applyNativeBars } from './lib/themeBars'
+import { initKeyboardInset } from './lib/keyboardInset'
 import { usePlans } from './hooks/usePlans'
 import { useToday } from './hooks/useToday'
 import { useToast } from './hooks/useToast'
@@ -26,7 +27,6 @@ import { PlanSheet } from './components/PlanSheet'
 import { SettingsSheet } from './components/SettingsSheet'
 import { SplashScreen } from './components/SplashScreen'
 import { Toast } from './components/Toast'
-import { TodayPage } from './components/TodayPage'
 
 interface InstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -94,7 +94,6 @@ export default function App() {
   const [createChoiceOpen, setCreateChoiceOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
-  const [todayOpen, setTodayOpen] = useState(false)
   const [confirm, setConfirm] = useState<ConfirmState | null>(null)
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null)
   const [isStandalone, setIsStandalone] = useState(false)
@@ -152,8 +151,11 @@ export default function App() {
     void applyNativeBars(themeOption(theme).paper)
   }, [theme])
 
+  useEffect(() => {
+    void initKeyboardInset()
+  }, [])
+
   const backStateRef = useRef({
-    todayOpen,
     confirmOpen: Boolean(confirm),
     sheetOpen: Boolean(sheet),
     ideaSheetOpen: Boolean(ideaSheet),
@@ -163,7 +165,6 @@ export default function App() {
     tab,
   })
   backStateRef.current = {
-    todayOpen,
     confirmOpen: Boolean(confirm),
     sheetOpen: Boolean(sheet),
     ideaSheetOpen: Boolean(ideaSheet),
@@ -180,10 +181,6 @@ export default function App() {
     void (async () => {
       const handle = await CapacitorApp.addListener('backButton', () => {
         const state = backStateRef.current
-        if (state.todayOpen) {
-          setTodayOpen(false)
-          return
-        }
         if (state.confirmOpen) {
           setConfirm(null)
           return
@@ -303,19 +300,6 @@ export default function App() {
     setCreateChoiceOpen(false)
     setImportError(null)
     setSettingsOpen(true)
-  }, [])
-
-  const openToday = useCallback(() => {
-    setDetailId(null)
-    setSheet(null)
-    setIdeaSheet(null)
-    setCreateChoiceOpen(false)
-    setSettingsOpen(false)
-    setTodayOpen(true)
-  }, [])
-
-  const closeToday = useCallback(() => {
-    setTodayOpen(false)
   }, [])
 
   const handleSave = (draft: PlanDraft) => {
@@ -504,7 +488,6 @@ export default function App() {
       <div className="app-frame">
         <AppHeader
           onHome={goHome}
-          onOpenToday={openToday}
           onOpenSettings={openSettings}
         />
 
@@ -624,15 +607,6 @@ export default function App() {
           }}
           onCancel={() => setConfirm(null)}
         />
-
-        {todayOpen && (
-          <TodayPage
-            plans={plans}
-            today={today}
-            onClose={closeToday}
-            onToast={showToast}
-          />
-        )}
 
         <Toast toast={toast} onDismiss={dismiss} />
       </div>

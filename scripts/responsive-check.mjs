@@ -1,4 +1,5 @@
 import { chromium } from 'playwright-core'
+import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
 
@@ -33,6 +34,13 @@ for (const [name, width, height] of [
     frameWidth: document.querySelector('.app-frame')?.getBoundingClientRect().width,
   }))
   console.log(name, metrics)
+  if (name === 'desktop') {
+    assert.ok(metrics.frameWidth > 900, '桌面端应使用宽屏布局')
+    assert.ok(
+      metrics.scrollWidth <= metrics.innerWidth + 1,
+      '桌面端出现横向溢出',
+    )
+  }
   await page.screenshot({ path: path.join(outDir, `${name}-overview.png`) })
 }
 

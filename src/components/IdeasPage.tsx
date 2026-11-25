@@ -4,7 +4,7 @@ import { yearOf } from '../lib/dates'
 import { EmptyState } from './EmptyState'
 import { CheckIcon, SparkIcon, TrashIcon } from './Icons'
 
-type IdeaFilter = 'all' | IdeaStatus
+type IdeaFilter = IdeaStatus
 
 interface IdeasPageProps {
   ideas: Idea[]
@@ -15,7 +15,6 @@ interface IdeasPageProps {
 }
 
 const FILTERS: Array<{ key: IdeaFilter; label: string }> = [
-  { key: 'all', label: '全部' },
   { key: 'active', label: '进行中' },
   { key: 'done', label: '已实现' },
   { key: 'archived', label: '已归档' },
@@ -27,12 +26,6 @@ const STATUS_LABELS: Record<IdeaStatus, string> = {
   archived: '已归档',
 }
 
-const STATUS_ORDER: Record<IdeaStatus, number> = {
-  active: 0,
-  done: 1,
-  archived: 2,
-}
-
 export function IdeasPage({
   ideas,
   onNewIdea,
@@ -40,47 +33,28 @@ export function IdeasPage({
   onIdeaStatusChange,
   onDeleteIdea,
 }: IdeasPageProps) {
-  const [filter, setFilter] = useState<IdeaFilter>('all')
+  const [filter, setFilter] = useState<IdeaFilter>('active')
   const counts = {
-    all: ideas.length,
     active: ideas.filter((idea) => idea.status === 'active').length,
     done: ideas.filter((idea) => idea.status === 'done').length,
     archived: ideas.filter((idea) => idea.status === 'archived').length,
   }
   const sorted = [...ideas]
-    .filter((idea) => filter === 'all' || idea.status === filter)
+    .filter((idea) => idea.status === filter)
     .sort((a, b) => {
-      const statusDelta = STATUS_ORDER[a.status] - STATUS_ORDER[b.status]
-      if (filter === 'all' && statusDelta !== 0) return statusDelta
       if (a.date !== b.date) return b.date.localeCompare(a.date)
       return b.createdAt.localeCompare(a.createdAt)
     })
 
   const handleNewIdea = () => {
-    setFilter('all')
     onNewIdea()
   }
 
   return (
     <div className="page page-ideas">
       <header className="ideas-head">
-        <div>
-          <p className="eyebrow">未放进时间的</p>
-          <h1>想法</h1>
-        </div>
-        <div className="ideas-head-actions">
-          <span className="simple-page-count">{ideas.length} 个</span>
-          {ideas.length > 0 && (
-            <button type="button" className="text-action" onClick={handleNewIdea}>
-              ＋ 记一个
-            </button>
-          )}
-        </div>
+        <h1>想法</h1>
       </header>
-
-      <p className="ideas-intro">
-        先记下来，不必马上安排。进行中和已实现的想法会留在年轮上。
-      </p>
 
       {ideas.length > 0 && (
         <div className="filter-chips" role="group" aria-label="想法状态筛选">
@@ -109,9 +83,6 @@ export function IdeasPage({
       ) : sorted.length === 0 ? (
         <div className="quiet-empty">
           <p>这里还没有想法。</p>
-          <button type="button" className="text-action" onClick={() => setFilter('all')}>
-            查看全部
-          </button>
         </div>
       ) : (
         <div className="idea-list">
