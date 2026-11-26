@@ -18,6 +18,9 @@ export interface PlanDraft {
   note: string
   subgoals: Subgoal[]
   checkInEnabled: boolean
+  reminderEnabled: boolean
+  checkInReminderEnabled: boolean
+  checkInReminderTime: string
 }
 
 export interface DraftErrors {
@@ -68,6 +71,9 @@ export function createPlan(draft: PlanDraft): Plan {
       .filter((subgoal) => subgoal.title),
     checkInEnabled: draft.checkInEnabled,
     checkInDates: [],
+    reminderEnabled: draft.reminderEnabled,
+    checkInReminderEnabled: draft.checkInReminderEnabled,
+    checkInReminderTime: draft.checkInReminderTime,
     parentId: null,
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -97,6 +103,9 @@ export function updatePlan(plan: Plan, draft: PlanDraft): Plan {
       })
       .filter((subgoal) => subgoal.title),
     checkInEnabled: draft.checkInEnabled,
+    reminderEnabled: draft.reminderEnabled,
+    checkInReminderEnabled: draft.checkInReminderEnabled,
+    checkInReminderTime: draft.checkInReminderTime,
     updatedAt: nowISOString(),
   }
 }

@@ -19,6 +19,9 @@ export interface Plan {
   subgoals: Subgoal[]
   checkInEnabled: boolean
   checkInDates: string[]
+  reminderEnabled: boolean
+  checkInReminderEnabled: boolean
+  checkInReminderTime: string
   parentId: string | null
   createdAt: string
   updatedAt: string

@@ -250,9 +250,16 @@ try {
   assert.equal(await page.locator('#plan-title').inputValue(), title)
   assert.equal(await page.locator('#plan-note').inputValue(), '先完成，再完美。')
   await page.locator('.subgoal-input').fill('先写出一页提纲')
-  await page.locator('.checkin-option').click()
+  await page.locator('.checkin-option').filter({ hasText: '每日打卡' }).click()
+  await page.locator('.reminder-check input').check()
+  await page.locator('.time-input').fill('21:15')
+  await page.locator('.checkin-option').filter({ hasText: '开始与结束提醒' }).click()
   assert.equal(
     await page.getByRole('checkbox', { name: /每日打卡/ }).isChecked(),
+    true,
+  )
+  assert.equal(
+    await page.getByRole('checkbox', { name: /开始与结束提醒/ }).isChecked(),
     true,
   )
   assert.equal(await page.locator('#plan-title').inputValue(), title)
@@ -276,6 +283,9 @@ try {
   assert.equal(plans[0].subgoals.length, 1)
   assert.equal(plans[0].subgoals[0].title, '先写出一页提纲')
   assert.equal(plans[0].checkInEnabled, true)
+  assert.equal(plans[0].reminderEnabled, true)
+  assert.equal(plans[0].checkInReminderEnabled, true)
+  assert.equal(plans[0].checkInReminderTime, '21:15')
   await page.locator('.band-row').filter({ hasText: title }).waitFor()
   check('添加字段不清空输入，点击按钮才创建规划')
 
@@ -466,13 +476,10 @@ try {
   await page.getByRole('radio', { name: /纸黄/ }).click()
   await page.waitForTimeout(250)
   await shot('360-settings.png')
-  await page.locator('.settings-developer').scrollIntoViewIfNeeded()
-  await page.getByText('tujingsushi', { exact: true }).waitFor()
-  await page
-    .getByText('github.com/tujingsushi/knot', { exact: true })
-    .waitFor()
-  await shot('360-settings-developer.png')
-  check('开发者信息可见')
+  await page.locator('.settings-credit').scrollIntoViewIfNeeded()
+  await page.getByText('特别鸣谢：paradox-09', { exact: true }).waitFor()
+  await shot('360-settings-credit.png')
+  check('特别鸣谢可见')
   await page.locator('dialog[open]').getByRole('button', { name: '关闭' }).click()
   await page.getByRole('button', { name: '新建', exact: true }).click()
   await page.getByRole('button', { name: /新建规划/ }).click()

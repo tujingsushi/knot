@@ -12,6 +12,10 @@ import { isDesktopApp } from './lib/desktop'
 import { applyTheme, loadTheme, themeOption, type ThemeKey } from './lib/theme'
 import { applyNativeBars } from './lib/themeBars'
 import { initKeyboardInset } from './lib/keyboardInset'
+import {
+  requestNotificationPermission,
+  syncPlanNotifications,
+} from './lib/notifications'
 import { usePlans } from './hooks/usePlans'
 import { useToday } from './hooks/useToday'
 import { useToast } from './hooks/useToast'
@@ -98,6 +102,7 @@ export default function App() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null)
   const [isStandalone, setIsStandalone] = useState(false)
   const [splashDone, setSplashDone] = useState(false)
+  const [notificationTick, setNotificationTick] = useState(0)
   const finishSplash = useCallback(() => setSplashDone(true), [])
   const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -154,6 +159,23 @@ export default function App() {
   useEffect(() => {
     void initKeyboardInset()
   }, [])
+
+  useEffect(() => {
+    void syncPlanNotifications(plans)
+  }, [plans, notificationTick])
+
+  useEffect(() => {
+    if (!native) return
+    let handle: { remove: () => Promise<void> } | null = null
+    void CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) void syncPlanNotifications(plans)
+    }).then((listener) => {
+      handle = listener
+    })
+    return () => {
+      void handle?.remove()
+    }
+  }, [native, plans])
 
   const backStateRef = useRef({
     confirmOpen: Boolean(confirm),
@@ -303,6 +325,21 @@ export default function App() {
   }, [])
 
   const handleSave = (draft: PlanDraft) => {
+    const wantsReminders =
+      draft.reminderEnabled ||
+      (draft.checkInEnabled && draft.checkInReminderEnabled)
+    if (wantsReminders) {
+      void requestNotificationPermission().then((granted) => {
+        if (granted) {
+          setNotificationTick((current) => current + 1)
+        } else {
+          showToast(
+            native ? '通知权限未开启，提醒不会发送' : '提醒需要安装 App 后使用',
+            'red',
+          )
+        }
+      })
+    }
     if (sheet?.mode === 'edit' && sheet.planId) {
       updatePlan(sheet.planId, draft)
       showToast('这条规划已经改好')

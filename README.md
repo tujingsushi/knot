@@ -1,37 +1,20 @@
-# 结绳 KNOT 2.7.0
+# 结绳 KNOT 2.8.2
 
-开发者：**tujingsushi**  
-仓库：[github.com/tujingsushi/knot](https://github.com/tujingsushi/knot)
+**结绳**是一个本地优先的规划应用：用年轮、单条时间轴、子目标、每日打卡和「想法」页，把想做的事放进时间里。
 
-**结绳**是一个本地优先的规划应用：用年轮、单条时间轴、子目标、每日打卡和「想法」页，把想做的事放回真实的时间里。
+2.1.0 把原来的总览页和规划页合并成一个「规划」页：日期、年轮、今日打卡、筛选和时间轴都在同一页。2.2.0 新增「想法」页：不急着安排时间的事可以先记下来，并以金色小点出现在年轮上。2.2.1 让已完成的规划也留在年轮上，以灰色细弧和完成结呈现。2.4.0 为想法补上已实现与归档状态，并把年轮上的想法改为按月聚合，避免重叠。2.5.0 增加五种主题。2.5.6 关闭 Android captureInput，修复中文输入法。2.8.2 精简页面结构与说明文字。名字来自「结绳记事」，也对应应用里的完成打结、今天红线和每一次打卡。启动时只显示一页随机名言。
 
-应用原名「三程」，2.0.0 起更名为「结绳」，英文名为 **KNOT**。2.1.0 把原来的总览页和规划页合并成一个「规划」页：日期、年轮、今日打卡、筛选和时间轴都在同一页。2.2.0 新增「想法」页：不急着安排时间的事可以先记下来，并以金色小点出现在年轮上。2.2.1 让已完成的规划也留在年轮上，以灰色细弧和完成结呈现。2.4.0 为想法补上已实现与归档状态，并把年轮上的想法改为按月聚合，避免重叠。2.5.0 增加五种主题。2.5.6 关闭 Android captureInput，修复中文输入法。2.7.0 精简页面结构与说明文字。名字来自「结绳记事」，也对应应用里的完成打结、今天红线和每一次打卡。启动时只显示一页随机名言。
 
-![结绳开屏](screenshots/00-splash.png)
+## 特别鸣谢
 
-![结绳规划页](screenshots/01-overview.png)
-
-![结绳想法页](screenshots/12-ideas.png)
-
-![新建选择](screenshots/13-create-choice.png)
-
-## 开发者信息
-
-- 开发者：**tujingsushi**
-- 仓库：<https://github.com/tujingsushi/knot>
-- 设置页底部会显示开发者和可点击的仓库地址
-- `package.json`、网页 `author` 元信息和 Android `strings.xml` 都写入了开发者信息
-
-![设置页开发者信息](screenshots/15-settings-developer.png)
-
-![桌面版](screenshots/16-desktop-app.png)
+- 特别鸣谢：**paradox-09**
 
 ## 交付物
 
 | 文件 | 说明 |
 |---|---|
-| [`release/knot-2.7.0.apk`](release/knot-2.7.0.apk) | 已签名 Release APK，约 3.5 MB，Android 7.0+ |
-| [`release/knot-web-2.7.0.zip`](release/knot-web-2.7.0.zip) | 可部署到 HTTPS 的 PWA 构建包 |
+| [`release/knot-2.8.2.apk`](release/knot-2.8.2.apk) | 已签名 Release APK，约 3.5 MB，Android 7.0+ |
+| [`release/knot-web-2.8.2.zip`](release/knot-web-2.8.2.zip) | 可部署到 HTTPS 的 PWA 构建包 |
 | [`release-desktop/knot-desktop-2.2.2-portable.exe`](release-desktop/knot-desktop-2.2.2-portable.exe) | Windows x64 单文件便携版 |
 | [`release-desktop/knot-desktop-2.2.2-x64.zip`](release-desktop/knot-desktop-2.2.2-x64.zip) | Windows x64 解压版 |
 | [`ios/`](ios/) | Capacitor iOS 原生工程（需 macOS/Xcode 编译） |
@@ -46,16 +29,14 @@ APK 校验信息：
 ```text
 应用名：结绳
 包名：com.sancheng.app
-版本：2.7.0 (versionCode 41)
+版本：2.8.2 (versionCode 44)
 compileSdk：36
 targetSdk：34
 minSdk：24
 签名：v2，CN=SanCheng
-大小：3,526,154 字节
-SHA-256：D7A4ABB6536F6BA46CE17CFDE5F34C5423197E4B99CF2CB312AE79A739D87488
+大小：3,557,024 字节
+SHA-256：E5EFD1115A34F52274C0704C8C1CB13161E497F7A9153A6AB43722D2A7A94562
 ```
-
-> **重要：** HarmonyOS 7 是纯血鸿蒙，系统本身不能安装 Android APK。这个 APK 只能通过 **卓易通等 Android 兼容层**运行，不是鸿蒙原生 HAP。兼容层是否支持该 APK，必须在你手机上实际验证。
 
 ## 桌面版
 
@@ -69,7 +50,7 @@ Windows x64 桌面版基于 Electron 45，与 Web 版共用同一份界面和数
 
 `knot.exe` 是兼容启动器，会启动同目录的 `knot-core.exe --no-sandbox`，用于兼容 Chromium 沙箱受限的 Windows。便携版数据在同目录 `KnotData`，解压版在 `%APPDATA%\Knot`。未做代码签名，SmartScreen 可能提示未知发布者。
 
-> 2.7.0 本次只重建了 Android / Web 交付包；上面的 Windows 桌面包仍是 2.2.2，源码已包含最新改动，但桌面包尚未重建。
+> 2.8.2 本次只重建了 Android / Web 交付包；上面的 Windows 桌面包仍是 2.2.2，源码已包含最新改动，但桌面包尚未重建。
 
 ![桌面版设置](screenshots/17-desktop-settings.png)
 
@@ -85,13 +66,10 @@ Windows x64 桌面版基于 Electron 45，与 Web 版共用同一份界面和数
 
 主题会保存在本机，重新打开仍沿用；状态栏、导航栏和页面安全区颜色也会跟随。
 
-![主题设置](screenshots/07-settings.png)
-
-![青瓷主题](screenshots/08-theme-celadon.png)
 
 ## 年轮
 
-2.7.0 恢复了原来的单年显示：
+2.8.2 恢复了原来的单年显示：
 
 - 年轮固定显示 1–12 月
 - 中心显示选中年份
@@ -99,7 +77,6 @@ Windows x64 桌面版基于 Electron 45，与 Web 版共用同一份界面和数
 - 年份切换、今天红线和月份刻度保持原来的行为
 - 想法仍按月聚合，避免重叠
 
-![年轮](screenshots/01-overview.png)
 
 ## 想法状态与年轮
 
@@ -110,17 +87,14 @@ Windows x64 桌面版基于 Electron 45，与 Web 版共用同一份界面和数
 - **已归档**：从年轮上隐藏，可在「想法 → 已归档」中恢复
 - 想法页支持按状态筛选，并显示各状态数量
 - 想法可修改标题、备注和日期；卡片上的「修改」按钮和年轮记号都可以打开编辑
-- 2.7.0 起编辑页顶部也有「保存」，键盘挡住底部按钮时仍然可以保存
-- 2.7.0 关闭 Android `captureInput`，中文输入法改用 WebView 原生输入连接，不再把中间输入追加到末尾
-- 2.7.0 标题和补充使用非受控输入，保存时读取输入框当前值
-- 2.7.0 修复延迟聚焦标题抢走补充输入焦点的问题
-- 2.7.0 避免原生旧快照覆盖本地刚保存的修改
+- 2.8.2 起编辑页顶部也有「保存」，键盘挡住底部按钮时仍然可以保存
+- 2.8.2 关闭 Android `captureInput`，中文输入法改用 WebView 原生输入连接，不再把中间输入追加到末尾
+- 2.8.2 标题和补充使用非受控输入，保存时读取输入框当前值
+- 2.8.2 修复延迟聚焦标题抢走补充输入焦点的问题
+- 2.8.2 避免原生旧快照覆盖本地刚保存的修改
 - 年轮不再为每个想法画一颗可能重叠的星，而是**按月份聚合**：每个月一个金色记号，同月多个想法显示数量
 - 点击月份记号会打开该月第一条想法进行编辑
 
-![想法页](screenshots/12-ideas.png)
-
-![修改想法](screenshots/19-idea-edit.png)
 
 ## iOS 版
 
@@ -128,7 +102,7 @@ iOS 原生工程已经生成，位于 [`ios/`](ios/)，使用 Capacitor 8 + Swif
 
 - Bundle ID：`com.sancheng.app`
 - 显示名：结绳
-- Marketing Version：2.7.0
+- Marketing Version：2.8.2
 - 最低系统：iOS 15
 - 设备：iPhone，竖屏
 - 启动画面：纯纸色，进入后仍是名言页
@@ -177,6 +151,33 @@ npm run ios:open
 - 已移除 HTML 启动占位里的「结绳」名称页
 - 冷启动从第一帧内容开始就是名言页
 - 某些系统在 WebView 加载前仍会有极短的纸色空白帧，但不会再出现图标页或名称页
+
+## 2.8.2 通知诊断
+
+- 设置页新增「通知」区域，显示权限状态和已安排提醒数量
+- 增加「发送测试通知」按钮，用于立即验证通知链路
+- 使用独立的高优先级通知频道 `knot-reminders`
+- 设置页会显示提醒安排失败的具体错误
+- 版本升至 2.8.2，versionCode 44
+
+## 2.8.1 特别鸣谢替换开发者信息
+
+- 删除设置页底部的开发者 tujingsushi 和 GitHub 仓库链接
+- 设置页底部改为「特别鸣谢：paradox-09」
+- 版本升至 2.8.1，versionCode 43
+
+## 2.8.0 每个规划的本地提醒
+
+- 新增 `@capacitor/local-notifications`
+- 每个规划可以单独开启「开始与结束提醒」
+- 每个开启每日打卡的规划可以单独开启打卡提醒并选择时间
+- 保存带提醒的规划时请求系统通知权限
+- 启动、回到前台和规划变化时自动重新安排提醒
+- 只安排进行中规划的提醒；归档或已完成的规划不提醒
+- 打卡提醒按未来 14 天滚动安排，iOS 最多保留 50 条待发送通知
+- 网页版/PWA 不发送定时通知，提醒只在原生 App 中生效
+- 版本升至 2.8.0，versionCode 42
+
 
 ## 2.7.0 桌面宽屏适配
 
@@ -252,7 +253,6 @@ npm run ios:open
 - 覆盖 Android 的 `adjustResize`、edge-to-edge 以及 iOS 键盘遮挡场景
 - 版本升至 2.5.10，versionCode 34
 
-![键盘避让](screenshots/22-keyboard-avoid.png)
 
 ## 2.5.9 主题表面修复
 
@@ -293,7 +293,7 @@ npm run ios:open
 
 - 部分 Android WebView 会在 compositionend 之后才真正提交输入法文字
 - 曾尝试保留待校正内容和原光标位置，在最终 input 事件或短延迟后再次校正
-- 该方案被 2.7.0 的原生 InputConnection 修复取代
+- 该方案被 2.8.2 的原生 InputConnection 修复取代
 - 版本升至 2.5.5，versionCode 29
 
 ## 2.5.4 输入法中间插入兜底
@@ -409,9 +409,9 @@ npm run ios:open
 
 ### 升级
 
-1.0–2.7.0 使用相同的包名和签名密钥，可以直接覆盖安装。
+1.0–2.8.2 使用相同的包名和签名密钥，可以直接覆盖安装。
 
-更名不会改变包名，所以「三程」1.3.x 可以直接升级为「结绳」2.7.0，数据保留。
+更名不会改变包名，所以「三程」1.3.x 可以直接升级为「结绳」2.8.2，数据保留。
 
 签名密钥必须保留：
 
@@ -424,7 +424,7 @@ npm run ios:open
 
 完整步骤、风险与排错见 [APK-INSTALL.md](APK-INSTALL.md)。
 
-1. 把 `knot-2.7.0.apk` 传到手机
+1. 把 `knot-2.8.2.apk` 传到手机
 2. 在文件管理器打开，选择「卓易通」安装
 3. 允许安装未知来源应用
 4. 打开「结绳」，确认设置页显示「已作为独立 App 运行」
@@ -507,13 +507,13 @@ Web 自动化检查：
 node scripts/functional-check.mjs
 ```
 
-覆盖开屏名言、新建想法、想法编辑、想法实现 / 归档 / 恢复、年轮想法按月聚合、单年年轮、主题切换、已完成规划年轮显示、开发者信息、新增、子目标、每日打卡、规划页快捷打卡、持久化、完成、重开、归档、删除、JSON 导出/导入、清空、manifest、Service Worker 与离线重载，共 39 项，全部通过。
+覆盖开屏名言、新建想法、想法编辑、想法实现 / 归档 / 恢复、年轮想法按月聚合、单年年轮、主题切换、已完成规划年轮显示、特别鸣谢、新增、子目标、每日打卡、规划页快捷打卡、持久化、完成、重开、归档、删除、JSON 导出/导入、清空、manifest、Service Worker 与离线重载，共 39 项，全部通过。
 
 APK 已完成：
 
 - `assembleRelease` 构建成功
 - `apksigner verify` 通过（v2）
-- 应用名「结绳」、英文名 KNOT、版本 2.7.0、包名、启动 Activity、min/target SDK 检查通过
+- 应用名「结绳」、英文名 KNOT、版本 2.8.2、包名、启动 Activity、min/target SDK 检查通过
 - APK 内 Web 资源、Capacitor 原生桥接代码、JSON 文件备份代码检查通过
 - 320px / 390px 视觉回归通过；所有可见文字 ≥ 12px
 
@@ -524,7 +524,7 @@ APK 已完成：
 - 便携版直接双击启动正常（不附加命令行参数）
 - 解压版 `knot.exe` 直接启动正常
 - 桌面桥识别 Windows / Electron 版本
-- 设置页显示桌面版、数据说明和开发者信息
+- 设置页显示桌面版、数据说明和特别鸣谢
 - zip 与 portable 构建成功
 - 桌面包内 `app.asar` 只包含 `dist`、`desktop` 和元数据
 - 启动器使用 `--no-sandbox` 兼容受限 Windows；只加载本地内容
@@ -564,17 +564,8 @@ release-desktop/           Windows 桌面版 zip / portable
 screenshots/               界面截图
 ```
 
-## 设计说明
-
-- **结绳记事**：完成不是消失，而是在时间上留下一个结。
-- **今天是一根红线**：年轮里的径向红线，规划时间条上的小刻度。
-- **颜色是时间的温度**：越接近结束，颜色越暖；完成任务退成灰色。
-- **一页把时间、打卡和规划放在一起**：不再在总览和规划之间切换。
-- **子目标与打卡**：把远方拆成今天可以完成的一小步。
-- **时间是主角**：不展示虚假的完成百分比，只呈现真实的时间位置。
-
 ## 技术栈
 
 React 19 + TypeScript + Vite 7 + Capacitor 8 + Electron 45，无 UI 组件库、无图表库、无后端。年轮与时间轴均由 SVG / CSS 手绘实现。iOS 工程使用 Capacitor 8 + Swift Package Manager。
 
-版本：2.7.0
+版本：2.8.2

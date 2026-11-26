@@ -43,6 +43,12 @@ function normalizeCheckInDates(value: unknown): string[] {
   return [...dates].sort()
 }
 
+function normalizeReminderTime(value: unknown): string {
+  return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value)
+    ? value
+    : '20:00'
+}
+
 function normalizePlan(value: unknown): Plan | null {
   if (!value || typeof value !== 'object') return null
   const record = value as Record<string, unknown>
@@ -79,6 +85,9 @@ function normalizePlan(value: unknown): Plan | null {
     subgoals: normalizeSubgoals(record.subgoals),
     checkInEnabled: Boolean(record.checkInEnabled),
     checkInDates: normalizeCheckInDates(record.checkInDates),
+    reminderEnabled: Boolean(record.reminderEnabled),
+    checkInReminderEnabled: Boolean(record.checkInReminderEnabled),
+    checkInReminderTime: normalizeReminderTime(record.checkInReminderTime),
     parentId: typeof record.parentId === 'string' && record.parentId ? record.parentId : null,
     createdAt,
     updatedAt,

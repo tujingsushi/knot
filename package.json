@@ -1,7 +1,7 @@
 {
   "name": "knot",
   "private": true,
-  "version": "2.7.0",
+  "version": "2.8.2",
   "type": "module",
   "description": "结绳 KNOT · 把远方拆成今天的本地优先规划应用",
   "main": "desktop/main.cjs",
@@ -36,6 +36,7 @@
     "@capacitor/filesystem": "^8.1.5",
     "@capacitor/ios": "^8.6.0",
     "@capacitor/keyboard": "^8.0.6",
+    "@capacitor/local-notifications": "^8.3.1",
     "@capacitor/share": "^8.0.3",
     "@capacitor/status-bar": "^8.0.4",
     "@capawesome/capacitor-android-edge-to-edge-support": "^8.0.8",

@@ -1,9 +1,14 @@
-import { useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Capacitor } from '@capacitor/core'
-import { ArrowUpRightIcon, CardIcon, DownloadIcon, ShareIcon, TrashIcon, XIcon } from './Icons'
+import { CardIcon, DownloadIcon, ShareIcon, TrashIcon, XIcon } from './Icons'
 import { Modal } from './Modal'
 import { formatNativeSaveTime } from '../lib/nativeStorage'
 import { desktopPlatformLabel } from '../lib/desktop'
+import {
+  getNotificationState,
+  sendTestNotification,
+  type NotificationState,
+} from '../lib/notifications'
 import { THEMES, type ThemeKey } from '../lib/theme'
 import type { NativeBackupStatus } from '../hooks/usePlans'
 
@@ -48,6 +53,32 @@ export function SettingsSheet({
 }: SettingsSheetProps) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
+  const [notificationState, setNotificationState] =
+    useState<NotificationState | null>(null)
+  const [testingNotification, setTestingNotification] = useState(false)
+  const [testMessage, setTestMessage] = useState('')
+
+  useEffect(() => {
+    if (!open || !isNativeApp) return
+    let cancelled = false
+    void getNotificationState().then((state) => {
+      if (!cancelled) setNotificationState(state)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [open, isNativeApp])
+
+  const handleTestNotification = async () => {
+    setTestingNotification(true)
+    setTestMessage('')
+    const result = await sendTestNotification()
+    setTestMessage(
+      result.ok ? '测试通知已发送' : result.message ?? '发送失败',
+    )
+    setNotificationState(await getNotificationState())
+    setTestingNotification(false)
+  }
 
   const handleFile = async (file: File | undefined) => {
     if (!file) return
@@ -116,6 +147,46 @@ export function SettingsSheet({
             ))}
           </div>
         </section>
+
+        {isNativeApp && (
+          <section className="settings-section" aria-labelledby="settings-notifications">
+            <div className="settings-section-head">
+              <h3 id="settings-notifications">通知</h3>
+              <span className="settings-count">
+                {notificationState?.permission === 'granted'
+                  ? '已允许'
+                  : notificationState?.permission === 'denied'
+                    ? '已拒绝'
+                    : notificationState
+                      ? '未开启'
+                      : '读取中'}
+              </span>
+            </div>
+            <div className="notification-status-row">
+              <span>
+                {notificationState
+                  ? `已安排 ${notificationState.pending} 条提醒`
+                  : '正在读取提醒状态…'}
+              </span>
+              <button
+                type="button"
+                className="button button-outline notification-test"
+                onClick={handleTestNotification}
+                disabled={testingNotification}
+              >
+                {testingNotification ? '发送中…' : '发送测试通知'}
+              </button>
+            </div>
+            {testMessage && (
+              <p className="settings-description" role="status">
+                {testMessage}
+              </p>
+            )}
+            {notificationState?.lastError && (
+              <p className="settings-error">提醒安排失败：{notificationState.lastError}</p>
+            )}
+          </section>
+        )}
 
         <section className="settings-section" aria-labelledby="settings-data">
           <div className="settings-section-head">
@@ -247,7 +318,7 @@ export function SettingsSheet({
 
             <p className="about-line">把远方拆成今天，把完成打成一个结。</p>
             <div className="about-meta">
-              <span>版本 2.7.0</span>
+              <span>版本 2.8.2</span>
               <span>本地优先</span>
               <span>
                 {isDesktopApp
@@ -262,21 +333,7 @@ export function SettingsSheet({
           </div>
         </details>
 
-        <div className="settings-developer">
-          <div className="settings-developer-row">
-            <span>开发者</span>
-            <strong>tujingsushi</strong>
-          </div>
-          <a
-            className="settings-developer-link"
-            href="https://github.com/tujingsushi/knot"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            github.com/tujingsushi/knot
-            <ArrowUpRightIcon size={12} />
-          </a>
-        </div>
+        <div className="settings-credit">特别鸣谢：paradox-09</div>
       </div>
     </Modal>
   )

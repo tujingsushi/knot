@@ -40,6 +40,9 @@ export function PlanSheet({ open, mode, plan, today, onClose, onSave }: PlanShee
   const [showNote, setShowNote] = useState(false)
   const [subgoals, setSubgoals] = useState<Subgoal[]>([])
   const [checkInEnabled, setCheckInEnabled] = useState(false)
+  const [reminderEnabled, setReminderEnabled] = useState(false)
+  const [checkInReminderEnabled, setCheckInReminderEnabled] = useState(false)
+  const [checkInReminderTime, setCheckInReminderTime] = useState('20:00')
   const [errors, setErrors] = useState<DraftErrors>({})
   const [endTouched, setEndTouched] = useState(false)
   const titleRef = useRef<HTMLInputElement>(null)
@@ -60,6 +63,9 @@ export function PlanSheet({ open, mode, plan, today, onClose, onSave }: PlanShee
       setShowNote(Boolean(plan.note))
       setSubgoals(plan.subgoals.map((subgoal) => ({ ...subgoal })))
       setCheckInEnabled(plan.checkInEnabled)
+      setReminderEnabled(plan.reminderEnabled)
+      setCheckInReminderEnabled(plan.checkInReminderEnabled)
+      setCheckInReminderTime(plan.checkInReminderTime)
     } else {
       setTitle('')
       setStartDate(today)
@@ -68,6 +74,9 @@ export function PlanSheet({ open, mode, plan, today, onClose, onSave }: PlanShee
       setShowNote(false)
       setSubgoals([])
       setCheckInEnabled(false)
+      setReminderEnabled(false)
+      setCheckInReminderEnabled(false)
+      setCheckInReminderTime('20:00')
     }
     setErrors({})
     setEndTouched(false)
@@ -159,6 +168,11 @@ export function PlanSheet({ open, mode, plan, today, onClose, onSave }: PlanShee
         title: subgoalRefs.current.get(subgoal.id)?.value ?? subgoal.title,
       })),
       checkInEnabled,
+      reminderEnabled,
+      checkInReminderEnabled,
+      checkInReminderTime: /^([01]\d|2[0-3]):[0-5]\d$/.test(checkInReminderTime)
+        ? checkInReminderTime
+        : '20:00',
     }
     const nextErrors = validateDraft(draft)
     setErrors(nextErrors)
@@ -365,6 +379,42 @@ export function PlanSheet({ open, mode, plan, today, onClose, onSave }: PlanShee
             />
             <span className="checkin-option-copy">
               <strong>每日打卡</strong>
+            </span>
+            <span className="checkin-switch" aria-hidden="true">
+              <span />
+            </span>
+          </label>
+          {checkInEnabled && (
+            <div className="reminder-subrow">
+              <label className="reminder-check">
+                <input
+                  type="checkbox"
+                  checked={checkInReminderEnabled}
+                  onChange={(event) => setCheckInReminderEnabled(event.target.checked)}
+                />
+                打卡提醒
+              </label>
+              <input
+                className="time-input"
+                type="time"
+                value={checkInReminderTime}
+                onChange={(event) => setCheckInReminderTime(event.target.value)}
+                disabled={!checkInReminderEnabled}
+                aria-label="打卡提醒时间"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label className="checkin-option">
+            <input
+              type="checkbox"
+              checked={reminderEnabled}
+              onChange={(event) => setReminderEnabled(event.target.checked)}
+            />
+            <span className="checkin-option-copy">
+              <strong>开始与结束提醒</strong>
             </span>
             <span className="checkin-switch" aria-hidden="true">
               <span />
